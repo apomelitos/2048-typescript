@@ -1,8 +1,8 @@
 import { FC } from 'react';
 import { Board } from './Board';
 
-const ROWS = 4,
-  COLS = 4;
+const ROWS = 4;
+const COLS = 4;
 
 export const Game: FC = (): JSX.Element => {
   return (
