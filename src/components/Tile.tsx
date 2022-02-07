@@ -19,7 +19,7 @@ const positionToPixels = ([row, col]: number[]): TopLeftStyles => {
 };
 
 export const Tile: FC<TileProps> = ({ value, position }): JSX.Element => {
-  const [tileValue, setTileValue] = useState(value);
+  const [tileValue] = useState(value);
 
   return (
     <div className={`tile tile-${tileValue}`} style={positionToPixels(position)}>
