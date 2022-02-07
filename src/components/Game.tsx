@@ -1,10 +1,15 @@
 import { FC, useCallback, useEffect, useReducer } from 'react';
 import { TileMeta } from '../types';
-import { Board } from './Board';
+import { Grid } from './Grid';
+import { Tile } from './Tile';
 import { gameReducer } from './GameReducer';
 
 const ROWS = 4;
 const COLS = 4;
+const TILE_TOTAL_WIDTH = 100;
+const BOARD_PADDING = 10;
+const CONTAINER_WIDTH = TILE_TOTAL_WIDTH * COLS;
+const BOARD_WIDTH = CONTAINER_WIDTH + BOARD_PADDING * 2;
 
 const initialState: TileMeta[] = [
   {
@@ -213,8 +218,11 @@ export const Game: FC = (): JSX.Element => {
   }, [moveLeft, state]);
 
   return (
-    <div>
-      <Board cols={COLS} rows={ROWS} tiles={state} />
+    <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
+      <Grid cols={COLS} rows={ROWS} />
+      {state.map((tile) => (
+        <Tile key={tile.id} value={tile.value} position={tile.position} />
+      ))}
     </div>
   );
 };
