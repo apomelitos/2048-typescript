@@ -10,13 +10,13 @@ type BoardProps = {
   tiles: TileMeta[];
 };
 
+const TILE_TOTAL_WIDTH = 100;
+const BOARD_PADDING = 10;
+
 export const Board: FC<BoardProps> = ({ cols, rows, tiles }): JSX.Element => {
-  const tileTotalWidth = 100;
-  const boardPadding = 10;
-
-  const containerWidht = tileTotalWidth * cols;
-
-  const boardWidth = containerWidht + boardPadding * 2;
+  // containerWidth depends on cols prop
+  const containerWidht = TILE_TOTAL_WIDTH * cols;
+  const boardWidth = containerWidht + BOARD_PADDING * 2;
 
   return (
     <div className='board' style={{ width: boardWidth }}>
