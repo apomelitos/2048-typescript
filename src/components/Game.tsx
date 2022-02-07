@@ -6,7 +6,7 @@ const ROWS = 4;
 const COLS = 4;
 
 export const Game: FC = (): JSX.Element => {
-  const [state, setState] = useState<TileMeta[]>([]);
+  const [state] = useState<TileMeta[]>([]);
 
   return (
     <div>
