@@ -15,8 +15,8 @@ type TopLeftStyles = {
 const positionToPixels = ([row, col]: number[]): TopLeftStyles => {
   return {
     // 100 is tile size with margins
-    top: `${col * 100 + 10}px`,
-    left: `${row * 100 + 10}px`,
+    top: `${row * 100 + 10}px`,
+    left: `${col * 100 + 10}px`,
   };
 };
 
