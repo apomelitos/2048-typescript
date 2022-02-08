@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export const useKeyPress = () => {
+export const useHandleButtons = () => {
   useEffect(() => {
     const moveLeft = () => console.log('Left');
     const moveRight = () => console.log('Right');

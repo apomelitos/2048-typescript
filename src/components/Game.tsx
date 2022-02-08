@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { TileMeta } from '../types';
-import { useKeyPress } from '../hooks/useKeyPress';
+import { useHandleButtons } from '../hooks/useHandleButtons';
 import { Tile } from './Tile';
 import { Grid } from './Grid';
 
@@ -27,7 +27,7 @@ const initialState: TileMeta[] = [
 export const Game: FC = (): JSX.Element => {
   const [tiles] = useState<TileMeta[]>(initialState);
 
-  useKeyPress();
+  useHandleButtons();
 
   return (
     <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
