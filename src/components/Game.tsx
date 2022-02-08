@@ -27,15 +27,7 @@ const initialState: TileMeta[] = [
 export const Game: FC = (): JSX.Element => {
   const [tiles] = useState<TileMeta[]>(initialState);
 
-  const moveLeft = () => console.log('moveLeft');
-  const moveRight = () => console.log('moveRight');
-  const moveUp = () => console.log('moveUp');
-  const moveDown = () => console.log('moveDown');
-
-  useKeyPress('ArrowLeft', moveLeft);
-  useKeyPress('ArrowRight', moveRight);
-  useKeyPress('ArrowUp', moveUp);
-  useKeyPress('ArrowDown', moveDown);
+  useKeyPress();
 
   return (
     <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>

@@ -1,11 +1,32 @@
 import { useEffect } from 'react';
 
-export const useKeyPress = (key: string, action: () => void) => {
+export const useKeyPress = () => {
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => e.key === key && action();
+    const moveLeft = () => console.log('Left');
+    const moveRight = () => console.log('Right');
+    const moveUp = () => console.log('Up');
+    const moveDown = () => console.log('Down');
 
-    window.addEventListener('keydown', onKeyDown);
+    const handleKeyPressed = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          moveLeft();
+          break;
+        case 'ArrowRight':
+          moveRight();
+          break;
+        case 'ArrowUp':
+          moveUp();
+          break;
+        case 'ArrowDown':
+          moveDown();
+      }
+    };
 
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [key, action]);
+    window.addEventListener('keydown', handleKeyPressed);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPressed);
+    };
+  }, []);
 };
