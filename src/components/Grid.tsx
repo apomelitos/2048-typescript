@@ -12,7 +12,7 @@ export const Grid: FC<GridProps> = ({ rows, cols }): JSX.Element => {
       {Array(rows * cols)
         .fill(0)
         .map((elem, idx) => (
-          <div key={idx} className='grid__cell' />
+          <div key={idx} className='grid-cell' />
         ))}
     </div>
   );
