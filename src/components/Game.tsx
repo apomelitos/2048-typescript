@@ -15,19 +15,29 @@ const initialState: TileMeta[] = [
   {
     id: 1,
     value: 2,
-    position: [0, 0],
+    position: [1, 1],
   },
   {
     id: 2,
     value: 4,
-    position: [0, 1],
+    position: [1, 2],
+  },
+  {
+    id: 3,
+    value: 8,
+    position: [2, 1],
+  },
+  {
+    id: 4,
+    value: 16,
+    position: [2, 2],
   },
 ];
 
 export const Game: FC = (): JSX.Element => {
-  const [tiles] = useState<TileMeta[]>(initialState);
+  const [tiles, setTiles] = useState<TileMeta[]>(initialState);
 
-  useHandleButtons();
+  useHandleButtons(setTiles);
 
   return (
     <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
