@@ -5,5 +5,7 @@ export const useKeyPress = (key: string, action: () => void) => {
     const onKeyDown = (e: KeyboardEvent) => e.key === key && action();
 
     window.addEventListener('keydown', onKeyDown);
+
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, [key, action]);
 };
