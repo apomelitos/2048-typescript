@@ -28,8 +28,8 @@ export const Game: FC = (): JSX.Element => {
 
   return (
     <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
-      {tiles.map((tile) => (
-        <Tile key={tile.id} value={tile.value} position={tile.position} />
+      {tiles.map(({ id: key, value, position }) => (
+        <Tile {...{ key, value, position }} />
       ))}
       <Grid rows={ROWS} cols={COLS} />
     </div>
