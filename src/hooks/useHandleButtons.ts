@@ -3,11 +3,9 @@ import { TileMeta } from '../types';
 
 const SIZE = 4;
 const getTilesMatrix = (tiles: TileMeta[]): TileMeta[][] => {
-  const matrix: TileMeta[][] = [];
-
-  for (let row = 0; row < SIZE; row++) {
-    matrix[row] = [];
-  }
+  const matrix: TileMeta[][] = Array<TileMeta[]>(SIZE)
+    .fill([])
+    .map(() => Array<TileMeta>(SIZE));
 
   for (const tile of tiles) {
     const [row, col] = tile.position;
@@ -17,26 +15,22 @@ const getTilesMatrix = (tiles: TileMeta[]): TileMeta[][] => {
   return matrix;
 };
 
-const isTile = (obj: unknown): obj is TileMeta => !!obj && typeof obj === 'object' && 'position' in obj;
-
 const generateRandomTile = (tiles: TileMeta[]) => {
   const matrix = getTilesMatrix(tiles);
   const emptyCellsPositions: [number, number][] = [];
 
   for (let rowIdx = 0; rowIdx < SIZE; rowIdx++) {
     for (let colIdx = 0; colIdx < SIZE; colIdx++) {
-      console.log(`Iteration: ${rowIdx * matrix.length + colIdx}`);
-      if (!isTile(matrix[rowIdx][colIdx])) {
+      if (matrix[rowIdx][colIdx] === undefined) {
         emptyCellsPositions.push([rowIdx, colIdx]);
       }
     }
   }
 
   const position = emptyCellsPositions[Math.floor(Math.random() * emptyCellsPositions.length)];
-  console.log(emptyCellsPositions);
 
   return {
-    id: Date.now(),
+    id: performance.now(),
     value: 2,
     position,
   };
@@ -79,10 +73,10 @@ const updateState = (state: TileMeta[], direction: 'UP' | 'DOWN' | 'LEFT' | 'RIG
     for (let secondIdx = pointer; secondIdx >= 0 && secondIdx < SIZE; secondIdx += pointerStep) {
       const tile = getTile(secondIdx, firstIdx);
 
-      if (isTile(tile)) {
+      if (tile !== undefined) {
         let { value } = tile;
 
-        if (isTile(prevTile) && prevTile.value === value) {
+        if (prevTile !== undefined && prevTile.value === value) {
           pointer -= pointerStep;
           value = value + value;
           toDeleteTilesIDs.push(prevTile.id);
@@ -102,13 +96,10 @@ const updateState = (state: TileMeta[], direction: 'UP' | 'DOWN' | 'LEFT' | 'RIG
     }
   }
 
-  // console.log(changesCount);
-
   const mergedState = newState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
 
   if (changesCount > 0) {
     const newTile = generateRandomTile(mergedState);
-    console.log('New tile', newTile);
     return [...mergedState, newTile];
   }
 
