@@ -20,16 +20,16 @@ const initialState: TileMeta[] = [
   {
     id: 2,
     value: 4,
-    position: [1, 2],
+    position: [0, 2],
   },
   {
     id: 3,
-    value: 8,
-    position: [2, 1],
+    value: 4,
+    position: [1, 2],
   },
   {
     id: 4,
-    value: 16,
+    value: 4,
     position: [2, 2],
   },
 ];

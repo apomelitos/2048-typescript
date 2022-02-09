@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import './Tile.scss';
 
 type TileProps = {
@@ -19,11 +19,9 @@ const positionToPixels = ([row, col]: number[]): TopLeftStyles => {
 };
 
 export const Tile: FC<TileProps> = ({ value, position }): JSX.Element => {
-  const [tileValue] = useState(value);
-
   return (
-    <div className={`tile tile-${tileValue}`} style={positionToPixels(position)}>
-      {tileValue}
+    <div className={`tile tile-${value}`} style={positionToPixels(position)}>
+      {value}
     </div>
   );
 };

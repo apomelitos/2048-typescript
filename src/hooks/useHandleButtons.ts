@@ -19,9 +19,10 @@ const getTilesMatrix = (tiles: TileMeta[]): TileMeta[][] => {
 
 const isTile = (obj: unknown): obj is TileMeta => !!obj && typeof obj === 'object' && 'position' in obj;
 
-const updateState = (state: TileMeta[], direction: string): TileMeta[] => {
+const updateState = (state: TileMeta[], direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'): TileMeta[] => {
   const matrix = getTilesMatrix(state);
   const newState: TileMeta[] = [];
+  const toDeleteTilesIDs: number[] = [];
 
   const getTileFromCol = (row: number, col: number): TileMeta => matrix[row][col];
   const getTileFromRow = (col: number, row: number): TileMeta => matrix[row][col];
@@ -33,15 +34,15 @@ const updateState = (state: TileMeta[], direction: string): TileMeta[] => {
   let pointerStart = 0;
   let firstIdx = 0;
 
-  if (direction === 'up' || direction === 'down') {
+  if (direction === 'UP' || direction === 'DOWN') {
     getTile = getTileFromCol;
     getNextPosition = getNextPositionInCol;
   }
 
-  if (direction === 'down' || direction === 'right') {
+  if (direction === 'DOWN' || direction === 'RIGHT') {
     pointerStart = SIZE - 1;
   }
-  if (direction === 'right') {
+  if (direction === 'RIGHT') {
     firstIdx = SIZE - 1;
   }
 
@@ -50,18 +51,30 @@ const updateState = (state: TileMeta[], direction: string): TileMeta[] => {
 
   for (; firstIdx < SIZE && firstIdx >= 0; firstIdx += firstIdxStep) {
     let pointer = pointerStart;
+    let prevTile: TileMeta | undefined;
     for (let secondIdx = pointer; secondIdx >= 0 && secondIdx < SIZE; secondIdx += pointerStep) {
       const tile = getTile(secondIdx, firstIdx);
 
       if (isTile(tile)) {
-        const nextPosition = getNextPosition(pointer, firstIdx);
-        newState.push({ ...tile, position: nextPosition });
+        let { value } = tile;
+
+        if (isTile(prevTile) && prevTile.value === value) {
+          pointer -= pointerStep;
+          value = value + value;
+          toDeleteTilesIDs.push(prevTile.id);
+          prevTile = undefined;
+        } else {
+          prevTile = tile;
+        }
+
+        const position = getNextPosition(pointer, firstIdx);
+        newState.push({ ...tile, position, value });
         pointer += pointerStep;
       }
     }
   }
 
-  return newState;
+  return newState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
 };
 
 export const useHandleButtons = (setState: React.Dispatch<SetStateAction<TileMeta[]>>) => {
@@ -69,16 +82,16 @@ export const useHandleButtons = (setState: React.Dispatch<SetStateAction<TileMet
     const handleKeyPressed = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'ArrowLeft':
-          setState((prev) => updateState(prev, 'left'));
+          setState((prev) => updateState(prev, 'LEFT'));
           break;
         case 'ArrowRight':
-          setState((prev) => updateState(prev, 'right'));
+          setState((prev) => updateState(prev, 'RIGHT'));
           break;
         case 'ArrowUp':
-          setState((prev) => updateState(prev, 'up'));
+          setState((prev) => updateState(prev, 'UP'));
           break;
         case 'ArrowDown':
-          setState((prev) => updateState(prev, 'down'));
+          setState((prev) => updateState(prev, 'DOWN'));
       }
     };
 
