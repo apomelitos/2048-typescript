@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import './Tile.scss';
 
 type TileProps = {
@@ -19,8 +19,29 @@ const positionToPixels = ([row, col]: number[]): TopLeftStyles => {
 };
 
 export const Tile: FC<TileProps> = ({ value, position }): JSX.Element => {
+  const tileRef = useRef<HTMLDivElement | null>(null);
+  const [startPosition] = useState(position);
+
+  useEffect(() => {
+    if (!tileRef.current) return;
+
+    const { top, left } = positionToPixels(position);
+    tileRef.current.animate(
+      [
+        {
+          top: `${top}px`,
+          left: `${left}px`,
+        },
+      ],
+      {
+        fill: 'forwards',
+        duration: 300,
+      }
+    );
+  }, [position]);
+
   return (
-    <div className={`tile tile-${value}`} style={positionToPixels(position)}>
+    <div ref={tileRef} className={`tile tile-${value}`} style={positionToPixels(startPosition)}>
       {value}
     </div>
   );

@@ -126,7 +126,7 @@ export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<T
         return movedState;
       });
 
-      setTimeout(() => setState((prev) => mergeState(prev, mergePairs)), 500);
+      setTimeout(() => setState((prev) => mergeState(prev, mergePairs)), 300);
 
       if (changesCount > 0) {
         setState((prev) => [...prev, generateRandomTile(prev)]);
