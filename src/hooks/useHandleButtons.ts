@@ -84,12 +84,14 @@ const moveState = (state: TileMeta[], direction: Direction): [TileMeta[], [TileM
           mergePairs.push([{ ...tile, position }, prevTile]);
           movedState.push({ ...tile, position });
           prevTile = undefined;
-          changesCount++;
           // Move without merge
-        } else if (tile.position[0] !== position[0] || tile.position[1] !== position[1]) {
+        } else {
           prevTile = { ...tile, position };
           movedState.push(prevTile);
           pointer += pointerStep;
+        }
+
+        if (tile.position[0] !== position[0] || tile.position[1] !== position[1]) {
           changesCount++;
         }
       }
@@ -124,7 +126,7 @@ export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<T
         return movedState;
       });
 
-      setTimeout(() => setState((prev) => mergeState(prev, mergePairs)), 300);
+      setTimeout(() => setState((prev) => mergeState(prev, mergePairs)), 500);
 
       if (changesCount > 0) {
         setState((prev) => [...prev, generateRandomTile(prev)]);
