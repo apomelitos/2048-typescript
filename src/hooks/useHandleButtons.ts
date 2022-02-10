@@ -1,7 +1,10 @@
-import React, { SetStateAction, useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { TileMeta } from '../types';
 
+type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+
 const SIZE = 4;
+
 const getTilesMatrix = (tiles: TileMeta[]): TileMeta[][] => {
   const matrix: TileMeta[][] = Array<TileMeta[]>(SIZE)
     .fill([])
@@ -36,10 +39,9 @@ const generateRandomTile = (tiles: TileMeta[]) => {
   };
 };
 
-const updateState = (state: TileMeta[], direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT'): TileMeta[] => {
+const moveState = (state: TileMeta[], direction: Direction): [TileMeta[], [TileMeta, TileMeta][], number] => {
   const matrix = getTilesMatrix(state);
-  const newState: TileMeta[] = [];
-  const toDeleteTilesIDs: number[] = [];
+  const movedState: TileMeta[] = [];
 
   const getTileFromCol = (row: number, col: number): TileMeta => matrix[row][col];
   const getTileFromRow = (col: number, row: number): TileMeta => matrix[row][col];
@@ -51,6 +53,7 @@ const updateState = (state: TileMeta[], direction: 'UP' | 'DOWN' | 'LEFT' | 'RIG
   let pointerStart = 0;
   let firstIdx = 0;
   let changesCount = 0;
+  const mergePairs: [TileMeta, TileMeta][] = [];
 
   if (direction === 'UP' || direction === 'DOWN') {
     getTile = getTileFromCol;
@@ -74,58 +77,81 @@ const updateState = (state: TileMeta[], direction: 'UP' | 'DOWN' | 'LEFT' | 'RIG
       const tile = getTile(secondIdx, firstIdx);
 
       if (tile !== undefined) {
-        let { value } = tile;
-
-        if (prevTile !== undefined && prevTile.value === value) {
-          pointer -= pointerStep;
-          value = value + value;
-          toDeleteTilesIDs.push(prevTile.id);
+        let position = getNextPosition(pointer, firstIdx);
+        // Move with merge
+        if (prevTile !== undefined && prevTile.value === tile.value) {
+          position = getNextPosition(pointer - pointerStep, firstIdx);
+          mergePairs.push([{ ...tile, position }, prevTile]);
+          movedState.push({ ...tile, position });
           prevTile = undefined;
-        } else {
-          prevTile = tile;
-        }
-
-        const position = getNextPosition(pointer, firstIdx);
-        newState.push({ ...tile, position, value });
-        pointer += pointerStep;
-
-        if (position[0] !== tile.position[0] || position[1] !== tile.position[1]) {
+          changesCount++;
+          // Move without merge
+        } else if (tile.position[0] !== position[0] || tile.position[1] !== position[1]) {
+          prevTile = { ...tile, position };
+          movedState.push(prevTile);
+          pointer += pointerStep;
           changesCount++;
         }
       }
     }
   }
 
-  const mergedState = newState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
-
-  if (changesCount > 0) {
-    const newTile = generateRandomTile(mergedState);
-    return [...mergedState, newTile];
-  }
-
-  return mergedState;
+  return [movedState, mergePairs, changesCount];
 };
 
-export const useHandleButtons = (setState: React.Dispatch<SetStateAction<TileMeta[]>>) => {
+const mergeState = (state: TileMeta[], mergePairs: [TileMeta, TileMeta][]): TileMeta[] => {
+  const mergedState = [...state];
+  const toDeleteTilesIDs: number[] = [];
+
+  for (const [source, destination] of mergePairs) {
+    const sourceIdx = mergedState.findIndex((tile) => tile.id === source.id);
+    mergedState[sourceIdx] = { ...source, value: source.value * 2, position: destination.position };
+    toDeleteTilesIDs.push(destination.id);
+  }
+
+  return mergedState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
+};
+
+export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<TileMeta[]>>) => {
+  const updateState = useCallback(
+    (direction: Direction) => {
+      let movedState: TileMeta[] = [];
+      let mergePairs: [TileMeta, TileMeta][] = [];
+      let changesCount = 0;
+
+      setState((prev) => {
+        [movedState, mergePairs, changesCount] = moveState(prev, direction);
+        return movedState;
+      });
+
+      setTimeout(() => setState((prev) => mergeState(prev, mergePairs)), 300);
+
+      if (changesCount > 0) {
+        setState((prev) => [...prev, generateRandomTile(prev)]);
+      }
+    },
+    [setState]
+  );
+
   useEffect(() => {
     const handleKeyPressed = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'ArrowLeft':
-          setState((prev) => updateState(prev, 'LEFT'));
+          updateState('LEFT');
           break;
         case 'ArrowRight':
-          setState((prev) => updateState(prev, 'RIGHT'));
+          updateState('RIGHT');
           break;
         case 'ArrowUp':
-          setState((prev) => updateState(prev, 'UP'));
+          updateState('UP');
           break;
         case 'ArrowDown':
-          setState((prev) => updateState(prev, 'DOWN'));
+          updateState('DOWN');
       }
     };
 
     window.addEventListener('keydown', handleKeyPressed);
 
     return () => window.removeEventListener('keydown', handleKeyPressed);
-  }, [setState]);
+  }, [updateState]);
 };
