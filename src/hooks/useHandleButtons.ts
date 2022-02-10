@@ -3,6 +3,17 @@ import { TileMeta } from '../types';
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
+type Position = [number, number];
+
+type MoveOptions = {
+  pointerStart: number;
+  firstIdxStart: number;
+  getTile: (matrix: TileMeta[][], secondIdx: number, firstIdx: number) => TileMeta;
+  getNextPosition: (pointer: number, idx: number) => Position;
+};
+
+type MoveStateReturn = [TileMeta[], [TileMeta, TileMeta][], number];
+
 const SIZE = 4;
 
 const getTilesMatrix = (tiles: TileMeta[]): TileMeta[][] => {
@@ -39,42 +50,21 @@ const generateRandomTile = (tiles: TileMeta[]) => {
   };
 };
 
-const moveState = (state: TileMeta[], direction: Direction): [TileMeta[], [TileMeta, TileMeta][], number] => {
+const moveState = (state: TileMeta[], options: MoveOptions): MoveStateReturn => {
+  const { pointerStart, firstIdxStart, getTile, getNextPosition } = options;
   const matrix = getTilesMatrix(state);
   const movedState: TileMeta[] = [];
-
-  const getTileFromCol = (row: number, col: number): TileMeta => matrix[row][col];
-  const getTileFromRow = (col: number, row: number): TileMeta => matrix[row][col];
-  const getNextPositionInCol = (pointer: number, idx: number): [number, number] => [pointer, idx];
-  const getNextPositionInRow = (pointer: number, idx: number): [number, number] => [idx, pointer];
-
-  let getTile = getTileFromRow;
-  let getNextPosition = getNextPositionInRow;
-  let pointerStart = 0;
-  let firstIdx = 0;
   let changesCount = 0;
   const mergePairs: [TileMeta, TileMeta][] = [];
 
-  if (direction === 'UP' || direction === 'DOWN') {
-    getTile = getTileFromCol;
-    getNextPosition = getNextPositionInCol;
-  }
-
-  if (direction === 'DOWN' || direction === 'RIGHT') {
-    pointerStart = SIZE - 1;
-  }
-  if (direction === 'RIGHT') {
-    firstIdx = SIZE - 1;
-  }
-
   const pointerStep = pointerStart > 0 ? -1 : 1;
-  const firstIdxStep = firstIdx > 0 ? -1 : 1;
+  const firstIdxStep = firstIdxStart > 0 ? -1 : 1;
 
-  for (; firstIdx < SIZE && firstIdx >= 0; firstIdx += firstIdxStep) {
+  for (let firstIdx = firstIdxStart; firstIdx < SIZE && firstIdx >= 0; firstIdx += firstIdxStep) {
     let pointer = pointerStart;
     let prevTile: TileMeta | undefined;
     for (let secondIdx = pointer; secondIdx >= 0 && secondIdx < SIZE; secondIdx += pointerStep) {
-      const tile = getTile(secondIdx, firstIdx);
+      const tile = getTile(matrix, secondIdx, firstIdx);
 
       if (tile !== undefined) {
         let position = getNextPosition(pointer, firstIdx);
@@ -120,9 +110,26 @@ export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<T
       let movedState: TileMeta[] = [];
       let mergePairs: [TileMeta, TileMeta][] = [];
       let changesCount = 0;
+      const options: Partial<MoveOptions> = {};
+
+      const getTileFromCol = (matrix: TileMeta[][], row: number, col: number): TileMeta => matrix[row][col];
+      const getTileFromRow = (matrix: TileMeta[][], col: number, row: number): TileMeta => matrix[row][col];
+      const getNextPositionInCol = (pointer: number, idx: number): Position => [pointer, idx];
+      const getNextPositionInRow = (pointer: number, idx: number): Position => [idx, pointer];
+
+      if (direction === 'UP' || direction === 'DOWN') {
+        options.getTile = getTileFromCol;
+        options.getNextPosition = getNextPositionInCol;
+      } else {
+        options.getTile = getTileFromRow;
+        options.getNextPosition = getNextPositionInRow;
+      }
+
+      options.pointerStart = direction === 'DOWN' || direction === 'RIGHT' ? SIZE - 1 : 0;
+      options.firstIdxStart = direction === 'RIGHT' ? SIZE - 1 : 0;
 
       setState((prev) => {
-        [movedState, mergePairs, changesCount] = moveState(prev, direction);
+        [movedState, mergePairs, changesCount] = moveState(prev, options as Required<MoveOptions>);
         return movedState;
       });
 
