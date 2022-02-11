@@ -9,6 +9,10 @@ type MoveStateReturn = [TileMeta[], [TileMeta, TileMeta][], number];
 
 const SIZE = 4;
 
+const getScoreFromMergePairs = (mergePairs: [TileMeta, TileMeta][]): number => {
+  return mergePairs.reduce((acc, item) => (acc || 0) + item[0].value, 0);
+};
+
 const getTilesMatrix = (tiles: TileMeta[]): TileMeta[][] => {
   const matrix: TileMeta[][] = Array<TileMeta[]>(SIZE)
     .fill([])
@@ -106,7 +110,11 @@ const mergeState = (state: TileMeta[], mergePairs: [TileMeta, TileMeta][]): Tile
   return mergedState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
 };
 
-export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<TileMeta[]>>) => {
+export const useHandleButtons = (
+  setState: React.Dispatch<React.SetStateAction<TileMeta[]>>,
+  setScore: React.Dispatch<React.SetStateAction<number>>,
+  setPrevState: React.Dispatch<React.SetStateAction<TileMeta[] | null>>
+) => {
   const isMovingRef = useRef(false);
 
   const updateState = useCallback(
@@ -118,17 +126,25 @@ export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<T
       let changesCount = 0;
 
       setState((prev) => {
+        if (changesCount > 0) setPrevState(prev);
+
         [movedState, mergePairs, changesCount] = moveState(prev, direction);
+
         return movedState;
       });
 
       setTimeout(() => {
         setState((prev) => mergeState(prev, mergePairs));
-        changesCount > 0 && setState((prev) => [...prev, generateRandomTile(prev)]);
+
+        if (changesCount > 0) {
+          setScore((prev) => prev + getScoreFromMergePairs(mergePairs));
+          setState((prev) => [...prev, generateRandomTile(prev)]);
+        }
+
         isMovingRef.current = false;
       }, 300);
     },
-    [setState]
+    [setState, setScore, setPrevState]
   );
 
   useEffect(() => {

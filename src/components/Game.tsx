@@ -3,6 +3,7 @@ import { TileMeta } from '../types';
 import { useHandleButtons } from '../hooks/useHandleButtons';
 import { Tile } from './Tile';
 import { Grid } from './Grid';
+import { Header } from './Header';
 
 const ROWS = 4;
 const COLS = 4;
@@ -36,15 +37,30 @@ const initialState: TileMeta[] = [
 
 export const Game: FC = (): JSX.Element => {
   const [tiles, setTiles] = useState<TileMeta[]>(initialState);
+  const [prevState, setPrevState] = useState<TileMeta[] | null>(null);
+  const [score, setScore] = useState(0);
 
-  useHandleButtons(setTiles);
+  useHandleButtons(setTiles, setScore, setPrevState);
+
+  const revertStateBackHandler = () => {
+    if (prevState !== null) setTiles(prevState);
+  };
+
+  const startNewGameHandler = () => {
+    setScore(0);
+    setTiles(initialState);
+    setPrevState(null);
+  };
 
   return (
-    <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
-      {tiles.map(({ id: key, value, position }) => (
-        <Tile {...{ key, value, position }} />
-      ))}
-      <Grid rows={ROWS} cols={COLS} />
-    </div>
+    <>
+      <Header onStartNewGame={startNewGameHandler} onRevertStateBack={revertStateBackHandler} score={score} />
+      <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
+        {tiles.map(({ id: key, value, position }) => (
+          <Tile {...{ key, value, position }} />
+        ))}
+        <Grid rows={ROWS} cols={COLS} />
+      </div>
+    </>
   );
 };

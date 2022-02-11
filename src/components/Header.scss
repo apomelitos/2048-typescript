@@ -1,0 +1,52 @@
+$border-radius: 5px;
+$text-color: #887070;
+$bg-color: #bbada0;
+
+.header h1 {
+  margin: 10px;
+  color: $text-color;
+  font-size: 52px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  color: $text-color;
+  padding: 10px 0;
+  width: 50%;
+}
+
+.score {
+  &-title {
+    font-size: 20px;
+    margin: 0;
+    color: $text-color;
+  }
+  margin: 5px;
+  padding: 10px;
+  background-color: $bg-color;
+  color: white;
+  text-align: center;
+  border-radius: $border-radius;
+  font-size: 26px;
+  flex: 1;
+}
+
+.game-button {
+  flex: 2 auto 100%;
+  width: 70px;
+  background-color: $bg-color;
+  margin: 5px;
+  padding: 20px 10px;
+  border-radius: $border-radius;
+  font-weight: 700;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+}

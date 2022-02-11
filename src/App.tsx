@@ -5,7 +5,6 @@ import './App.scss';
 export const App: FC = (): JSX.Element => {
   return (
     <div className='App'>
-      <h1>2048</h1>
       <Game />
     </div>
   );
