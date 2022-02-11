@@ -4,6 +4,7 @@ import { useHandleButtons } from '../hooks/useHandleButtons';
 import { Tile } from './Tile';
 import { Grid } from './Grid';
 import { Header } from './Header';
+import './Game.scss';
 
 const ROWS = 4;
 const COLS = 4;
@@ -39,10 +40,12 @@ export const Game: FC = (): JSX.Element => {
   const [tiles, setTiles] = useState<TileMeta[]>(initialState);
   const [prevState, setPrevState] = useState<TileMeta[] | null>(null);
   const [score, setScore] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false);
 
-  useHandleButtons(setTiles, setScore, setPrevState);
+  useHandleButtons(setTiles, setScore, setPrevState, setIsGameOver);
 
   const revertStateBackHandler = () => {
+    if (isGameOver) setIsGameOver(false);
     if (prevState !== null) setTiles(prevState);
   };
 
@@ -50,12 +53,15 @@ export const Game: FC = (): JSX.Element => {
     setScore(0);
     setTiles(initialState);
     setPrevState(null);
+    setIsGameOver(false);
   };
 
   return (
     <>
+      {isGameOver && <h1>GAME OVER</h1>}
       <Header onStartNewGame={startNewGameHandler} onRevertStateBack={revertStateBackHandler} score={score} />
       <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
+        {isGameOver && <div className='game-over'>GAME OVER</div>}
         {tiles.map(({ id: key, value, position }) => (
           <Tile {...{ key, value, position }} />
         ))}
