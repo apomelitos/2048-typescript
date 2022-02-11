@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { TileMeta } from '../types';
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
@@ -107,8 +107,12 @@ const mergeState = (state: TileMeta[], mergePairs: [TileMeta, TileMeta][]): Tile
 };
 
 export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<TileMeta[]>>) => {
+  const isMovingRef = useRef(false);
+
   const updateState = useCallback(
     (direction: Direction) => {
+      isMovingRef.current = true;
+
       let movedState: TileMeta[];
       let mergePairs: [TileMeta, TileMeta][];
       let changesCount = 0;
@@ -120,9 +124,8 @@ export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<T
 
       setTimeout(() => {
         setState((prev) => mergeState(prev, mergePairs));
-        if (changesCount > 0) {
-          setState((prev) => [...prev, generateRandomTile(prev)]);
-        }
+        changesCount > 0 && setState((prev) => [...prev, generateRandomTile(prev)]);
+        isMovingRef.current = false;
       }, 300);
     },
     [setState]
@@ -130,6 +133,8 @@ export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<T
 
   useEffect(() => {
     const handleKeyPressed = (e: KeyboardEvent) => {
+      if (isMovingRef.current) return;
+
       switch (e.key) {
         case 'ArrowLeft':
           updateState('LEFT');
