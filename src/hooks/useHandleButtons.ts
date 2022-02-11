@@ -5,13 +5,6 @@ type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
 type Position = [number, number];
 
-type MoveOptions = {
-  pointerStart: number;
-  firstIdxStart: number;
-  getTile: (matrix: TileMeta[][], secondIdx: number, firstIdx: number) => TileMeta;
-  getNextPosition: (pointer: number, idx: number) => Position;
-};
-
 type MoveStateReturn = [TileMeta[], [TileMeta, TileMeta][], number];
 
 const SIZE = 4;
@@ -31,7 +24,7 @@ const getTilesMatrix = (tiles: TileMeta[]): TileMeta[][] => {
 
 const generateRandomTile = (tiles: TileMeta[]) => {
   const matrix = getTilesMatrix(tiles);
-  const emptyCellsPositions: [number, number][] = [];
+  const emptyCellsPositions: Position[] = [];
 
   for (let rowIdx = 0; rowIdx < SIZE; rowIdx++) {
     for (let colIdx = 0; colIdx < SIZE; colIdx++) {
@@ -50,21 +43,30 @@ const generateRandomTile = (tiles: TileMeta[]) => {
   };
 };
 
-const moveState = (state: TileMeta[], options: MoveOptions): MoveStateReturn => {
-  const { pointerStart, firstIdxStart, getTile, getNextPosition } = options;
+const moveState = (state: TileMeta[], direction: Direction): MoveStateReturn => {
   const matrix = getTilesMatrix(state);
   const movedState: TileMeta[] = [];
   let changesCount = 0;
   const mergePairs: [TileMeta, TileMeta][] = [];
 
-  const pointerStep = pointerStart > 0 ? -1 : 1;
-  const firstIdxStep = firstIdxStart > 0 ? -1 : 1;
+  const fromEndToStart = [SIZE - 1, -1];
+  const fromStartToEnd = [0, 1];
 
-  for (let firstIdx = firstIdxStart; firstIdx < SIZE && firstIdx >= 0; firstIdx += firstIdxStep) {
+  const [pointerStart, pointerStep] = direction === 'DOWN' || direction === 'RIGHT' ? fromEndToStart : fromStartToEnd;
+
+  const isHorisontalDirection = direction === 'LEFT' || direction === 'RIGHT';
+
+  const getTile = ([row, col]: Position) => (isHorisontalDirection ? matrix[col][row] : matrix[row][col]);
+
+  const getNextPosition = (pointer: number, rowOrCol: number): Position =>
+    isHorisontalDirection ? [rowOrCol, pointer] : [pointer, rowOrCol];
+
+  for (let firstIdx = 0; firstIdx < SIZE; firstIdx++) {
     let pointer = pointerStart;
     let prevTile: TileMeta | undefined;
-    for (let secondIdx = pointer; secondIdx >= 0 && secondIdx < SIZE; secondIdx += pointerStep) {
-      const tile = getTile(matrix, secondIdx, firstIdx);
+
+    for (let secondIdx = pointerStart; secondIdx >= 0 && secondIdx < SIZE; secondIdx += pointerStep) {
+      const tile = getTile([secondIdx, firstIdx]);
 
       if (tile !== undefined) {
         let position = getNextPosition(pointer, firstIdx);
@@ -107,37 +109,21 @@ const mergeState = (state: TileMeta[], mergePairs: [TileMeta, TileMeta][]): Tile
 export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<TileMeta[]>>) => {
   const updateState = useCallback(
     (direction: Direction) => {
-      let movedState: TileMeta[] = [];
-      let mergePairs: [TileMeta, TileMeta][] = [];
+      let movedState: TileMeta[];
+      let mergePairs: [TileMeta, TileMeta][];
       let changesCount = 0;
-      const options: Partial<MoveOptions> = {};
-
-      const getTileFromCol = (matrix: TileMeta[][], row: number, col: number): TileMeta => matrix[row][col];
-      const getTileFromRow = (matrix: TileMeta[][], col: number, row: number): TileMeta => matrix[row][col];
-      const getNextPositionInCol = (pointer: number, idx: number): Position => [pointer, idx];
-      const getNextPositionInRow = (pointer: number, idx: number): Position => [idx, pointer];
-
-      if (direction === 'UP' || direction === 'DOWN') {
-        options.getTile = getTileFromCol;
-        options.getNextPosition = getNextPositionInCol;
-      } else {
-        options.getTile = getTileFromRow;
-        options.getNextPosition = getNextPositionInRow;
-      }
-
-      options.pointerStart = direction === 'DOWN' || direction === 'RIGHT' ? SIZE - 1 : 0;
-      options.firstIdxStart = direction === 'RIGHT' ? SIZE - 1 : 0;
 
       setState((prev) => {
-        [movedState, mergePairs, changesCount] = moveState(prev, options as Required<MoveOptions>);
+        [movedState, mergePairs, changesCount] = moveState(prev, direction);
         return movedState;
       });
 
-      setTimeout(() => setState((prev) => mergeState(prev, mergePairs)), 300);
-
-      if (changesCount > 0) {
-        setState((prev) => [...prev, generateRandomTile(prev)]);
-      }
+      setTimeout(() => {
+        setState((prev) => mergeState(prev, mergePairs));
+        if (changesCount > 0) {
+          setState((prev) => [...prev, generateRandomTile(prev)]);
+        }
+      }, 300);
     },
     [setState]
   );
