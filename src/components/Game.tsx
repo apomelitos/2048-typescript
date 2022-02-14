@@ -63,8 +63,8 @@ export const Game: FC = (): JSX.Element => {
         {isGameOver && <div className='game-over'>GAME OVER</div>}
         {tiles
           .sort((a, b) => a.id - b.id) // Required for CSS transitions
-          .map(({ id, value, position, isMerged, isNew }) => (
-            <Tile key={id} {...{ value, position }} isMerged={isMerged} isNew={isNew} />
+          .map(({ id, value, position, isMerged }) => (
+            <Tile key={id} value={value} position={position} isMerged={isMerged} />
           ))}
         <Grid rows={ROWS} cols={COLS} />
       </div>

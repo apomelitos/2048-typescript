@@ -3,5 +3,4 @@ export type TileMeta = {
   value: number;
   position: [number, number];
   isMerged?: boolean;
-  isNew?: boolean;
 };

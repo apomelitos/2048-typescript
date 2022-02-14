@@ -11,16 +11,18 @@ const SIZE = 4;
 
 const hasPossibleMoves = (tiles: TileMeta[]): boolean => {
   const matrix = getTilesMatrix(tiles);
-
+  const idxList: string[] = [];
   if (tiles.length < SIZE * SIZE) return true;
 
   for (let row = 0; row < SIZE - 1; row++) {
-    for (let col = 0; col < SIZE - 1; col++) {
+    for (let col = 0; col < SIZE; col++) {
+      idxList.push(`${row}:${col}`);
       if (
-        matrix[row][col].value === matrix[row][col + 1].value ||
+        matrix[row][col].value === matrix[row][col + 1]?.value ||
         matrix[row][col].value === matrix[row + 1][col].value
-      )
+      ) {
         return true;
+      }
     }
   }
 
@@ -62,7 +64,7 @@ const generateRandomTile = (tiles: TileMeta[]) => {
     id: Math.random(),
     value: 2,
     position,
-    isNew: true,
+    isMerged: false,
   };
 };
 

@@ -20,12 +20,9 @@ const positionToPixels = ([row, col]: number[]): TopLeftStyles => {
   };
 };
 
-export const Tile: FC<TileProps> = ({ value, position, isMerged = false, isNew = false }): JSX.Element => {
+export const Tile: FC<TileProps> = ({ value, position, isMerged = false }): JSX.Element => {
   return (
-    <div
-      className={`tile tile-${value} ${isMerged ? 'merged' : isNew ? 'new' : ''}`}
-      style={positionToPixels(position)}
-    >
+    <div className={`tile tile-${value} ${isMerged ? 'merged' : 'new'}`} style={positionToPixels(position)}>
       {value}
     </div>
   );
