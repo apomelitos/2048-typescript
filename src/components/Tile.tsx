@@ -20,6 +20,7 @@ const positionToPixels = ([row, col]: number[]): TopLeftStyles => {
   };
 };
 
+
 export const Tile: FC<TileProps> = ({ value, position, isMerged = false, isNew = false }): JSX.Element => {
   return (
     <div
