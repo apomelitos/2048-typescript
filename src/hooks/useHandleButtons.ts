@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { TileMeta } from '../types';
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
@@ -8,6 +8,28 @@ type Position = [number, number];
 type MoveStateReturn = [TileMeta[], [TileMeta, TileMeta][], number];
 
 const SIZE = 4;
+
+const hasPossibleMoves = (tiles: TileMeta[]): boolean => {
+  const matrix = getTilesMatrix(tiles);
+
+  if (tiles.length < SIZE * SIZE) return true;
+
+  for (let row = 0; row < SIZE - 1; row++) {
+    for (let col = 0; col < SIZE - 1; col++) {
+      if (
+        matrix[row][col].value === matrix[row][col + 1].value ||
+        matrix[row][col].value === matrix[row + 1][col].value
+      )
+        return true;
+    }
+  }
+
+  return false;
+};
+
+const getScoreFromMergePairs = (mergePairs: [TileMeta, TileMeta][]): number => {
+  return mergePairs.reduce((acc, item) => (acc || 0) + item[0].value, 0);
+};
 
 const getTilesMatrix = (tiles: TileMeta[]): TileMeta[][] => {
   const matrix: TileMeta[][] = Array<TileMeta[]>(SIZE)
@@ -106,7 +128,12 @@ const mergeState = (state: TileMeta[], mergePairs: [TileMeta, TileMeta][]): Tile
   return mergedState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
 };
 
-export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<TileMeta[]>>) => {
+export const useHandleButtons = (
+  setState: React.Dispatch<React.SetStateAction<TileMeta[]>>,
+  setScore: React.Dispatch<React.SetStateAction<number>>,
+  setPrevState: React.Dispatch<React.SetStateAction<TileMeta[] | null>>,
+  setIsGameOver: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   const isMovingRef = useRef(false);
 
   const updateState = useCallback(
@@ -118,17 +145,34 @@ export const useHandleButtons = (setState: React.Dispatch<React.SetStateAction<T
       let changesCount = 0;
 
       setState((prev) => {
+        if (changesCount > 0) setPrevState(prev);
+
         [movedState, mergePairs, changesCount] = moveState(prev, direction);
+
         return movedState;
       });
 
       setTimeout(() => {
-        setState((prev) => mergeState(prev, mergePairs));
-        changesCount > 0 && setState((prev) => [...prev, generateRandomTile(prev)]);
+        let currentState;
+
+        setState((prev) => {
+          currentState = mergeState(prev, mergePairs);
+          return currentState;
+        });
+
+        if (changesCount > 0) {
+          setScore((prev) => prev + getScoreFromMergePairs(mergePairs));
+          setState((prev) => {
+            currentState = [...prev, generateRandomTile(prev)];
+            if (!hasPossibleMoves(currentState)) setIsGameOver(true);
+            return currentState;
+          });
+        }
+
         isMovingRef.current = false;
       }, 300);
     },
-    [setState]
+    [setState, setScore, setPrevState, setIsGameOver]
   );
 
   useEffect(() => {
