@@ -16,7 +16,9 @@ $tile-size: 80px;
   text-align: center;
   box-sizing: border-box;
   line-height: $tile-size;
-  transition: all 300ms ease-in;
+  transition-property: color, background-color, top, left;
+  transition-duration: 300ms;
+
   &-2 {
     @include styles(#000, #eee4da, rgba(243, 215, 116, 0));
   }
@@ -49,5 +51,34 @@ $tile-size: 80px;
   }
   &-2048 {
     @include styles(#000, #ede0c8, rgba(243, 215, 116, 0.55556));
+  }
+}
+
+.merged {
+  animation: merge-tile 300ms;
+}
+
+.new {
+  animation: create-tile 300ms;
+}
+
+@keyframes create-tile {
+  from {
+    transform: scale(0.6);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes merge-tile {
+  0% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
   }
 }

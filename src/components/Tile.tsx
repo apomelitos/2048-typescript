@@ -1,9 +1,11 @@
-import { FC, useEffect, useState, useRef } from 'react';
+import { FC } from 'react';
 import './Tile.scss';
 
 type TileProps = {
   value: number;
   position: [number, number];
+  isMerged?: boolean;
+  isNew?: boolean;
 };
 
 type TopLeftStyles = {
@@ -18,30 +20,12 @@ const positionToPixels = ([row, col]: number[]): TopLeftStyles => {
   };
 };
 
-export const Tile: FC<TileProps> = ({ value, position }): JSX.Element => {
-  const tileRef = useRef<HTMLDivElement | null>(null);
-  const [startPosition] = useState(position);
-
-  useEffect(() => {
-    if (!tileRef.current) return;
-
-    const { top, left } = positionToPixels(position);
-    tileRef.current.animate(
-      [
-        {
-          top: `${top}px`,
-          left: `${left}px`,
-        },
-      ],
-      {
-        fill: 'forwards',
-        duration: 300,
-      }
-    );
-  }, [position]);
-
+export const Tile: FC<TileProps> = ({ value, position, isMerged = false, isNew = false }): JSX.Element => {
   return (
-    <div ref={tileRef} className={`tile tile-${value}`} style={positionToPixels(startPosition)}>
+    <div
+      className={`tile tile-${value} ${isMerged ? 'merged' : isNew ? 'new' : ''}`}
+      style={positionToPixels(position)}
+    >
       {value}
     </div>
   );

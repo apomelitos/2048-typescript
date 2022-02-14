@@ -59,9 +59,10 @@ const generateRandomTile = (tiles: TileMeta[]) => {
   const position = emptyCellsPositions[Math.floor(Math.random() * emptyCellsPositions.length)];
 
   return {
-    id: performance.now(),
+    id: Math.random(),
     value: 2,
     position,
+    isNew: true,
   };
 };
 
@@ -121,8 +122,13 @@ const mergeState = (state: TileMeta[], mergePairs: [TileMeta, TileMeta][]): Tile
 
   for (const [source, destination] of mergePairs) {
     const sourceIdx = mergedState.findIndex((tile) => tile.id === source.id);
-    mergedState[sourceIdx] = { ...source, value: source.value * 2, position: destination.position };
-    toDeleteTilesIDs.push(destination.id);
+    mergedState[sourceIdx] = {
+      id: Math.random(),
+      value: source.value * 2,
+      position: destination.position,
+      isMerged: true,
+    };
+    toDeleteTilesIDs.push(destination.id, source.id);
   }
 
   return mergedState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
@@ -170,7 +176,7 @@ export const useHandleButtons = (
         }
 
         isMovingRef.current = false;
-      }, 300);
+      }, 300); // Should be the same as in CSS
     },
     [setState, setScore, setPrevState, setIsGameOver]
   );
