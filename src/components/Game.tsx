@@ -1,16 +1,16 @@
-import { FC, useState } from 'react';
-import { TileMeta } from '../types';
+import { FC, useState, useCallback, useRef } from 'react';
+import { TileMeta, Direction } from '../types';
 import { useHandleButtons } from '../hooks/useHandleButtons';
+import { useGame, mergeState, getScoreFromMergePairs } from '../hooks/useGame';
 import { Tile } from './Tile';
 import { Grid } from './Grid';
 import { Header } from './Header';
 import './Game.scss';
 
-const ROWS = 4;
-const COLS = 4;
+const SIZE = 4;
 const TILE_TOTAL_WIDTH = 100;
 const BOARD_PADDING = 10;
-const CONTAINER_WIDTH = TILE_TOTAL_WIDTH * COLS;
+const CONTAINER_WIDTH = TILE_TOTAL_WIDTH * SIZE;
 const BOARD_WIDTH = CONTAINER_WIDTH + BOARD_PADDING * 2;
 
 const initialState: TileMeta[] = [
@@ -41,8 +41,53 @@ export const Game: FC = (): JSX.Element => {
   const [prevState, setPrevState] = useState<TileMeta[] | null>(null);
   const [score, setScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
+  const isMovingRef = useRef(false);
 
-  useHandleButtons(setTiles, setScore, setPrevState, setIsGameOver);
+  const { moveState, generateRandomTile, hasPossibleMoves } = useGame(SIZE);
+
+  const updateState = useCallback(
+    (direction: Direction) => {
+      isMovingRef.current = true;
+
+      let movedState: TileMeta[];
+      let mergePairs: [TileMeta, TileMeta][];
+      let changesCount = 0;
+
+      setTiles((prev) => {
+        if (changesCount > 0) setPrevState(prev);
+
+        [movedState, mergePairs, changesCount] = moveState(prev, direction);
+
+        return movedState;
+      });
+
+      if (changesCount === 0) {
+        isMovingRef.current = false;
+        return;
+      }
+
+      setTimeout(() => {
+        let hasMoves;
+
+        setTiles((prev) => {
+          const currentState = mergeState(prev, mergePairs);
+          currentState.push(generateRandomTile(currentState));
+          hasMoves = hasPossibleMoves(currentState);
+
+          return currentState;
+        });
+
+        if (!hasMoves) setIsGameOver(true);
+
+        setScore((prev) => prev + getScoreFromMergePairs(mergePairs));
+
+        isMovingRef.current = false;
+      }, 300); // Should be the same as in CSS
+    },
+    [moveState, hasPossibleMoves, generateRandomTile]
+  );
+
+  useHandleButtons(updateState, isMovingRef);
 
   const revertStateBackHandler = () => {
     if (isGameOver) setIsGameOver(false);
@@ -66,7 +111,7 @@ export const Game: FC = (): JSX.Element => {
           .map(({ id, value, position, isMerged }) => (
             <Tile key={id} value={value} position={position} isMerged={isMerged} />
           ))}
-        <Grid rows={ROWS} cols={COLS} />
+        <Grid size={SIZE} />
       </div>
     </>
   );

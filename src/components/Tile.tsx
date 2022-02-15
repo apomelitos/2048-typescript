@@ -5,7 +5,6 @@ type TileProps = {
   value: number;
   position: [number, number];
   isMerged?: boolean;
-  isNew?: boolean;
 };
 
 type TopLeftStyles = {

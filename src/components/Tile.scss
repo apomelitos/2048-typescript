@@ -72,9 +72,6 @@ $tile-size: 80px;
 }
 
 @keyframes merge-tile {
-  0% {
-    transform: scale(1);
-  }
   60% {
     transform: scale(1.2);
   }

@@ -4,3 +4,5 @@ export type TileMeta = {
   position: [number, number];
   isMerged?: boolean;
 };
+
+export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
