@@ -1,4 +1,4 @@
-import { FC, useState, useRef, useEffect } from 'react';
+import { FC, useState, useRef } from 'react';
 import { TileMeta, Direction } from '../types';
 import { useHandleButtons } from '../hooks/useHandleButtons';
 import {
@@ -7,6 +7,7 @@ import {
   mergeState,
   generateRandomTile,
   getScoreFromMergePairs,
+  generateInitialTiles,
 } from '../utils/gameUtils';
 import { Tile } from './Tile';
 import { Grid } from './Grid';
@@ -19,26 +20,13 @@ const BOARD_PADDING = 10;
 const CONTAINER_WIDTH = TILE_TOTAL_WIDTH * SIZE;
 const BOARD_WIDTH = CONTAINER_WIDTH + BOARD_PADDING * 2;
 
-const initialState: TileMeta[] = [
-  {
-    id: 1,
-    value: 2,
-    position: [0, 0],
-  },
-  {
-    id: 2,
-    value: 2,
-    position: [1, SIZE - 1],
-  },
-];
-
 type GameState = {
   tiles: TileMeta[];
   score: number;
 };
 
 export const Game: FC = (): JSX.Element => {
-  const [tiles, setTiles] = useState<TileMeta[]>(initialState);
+  const [tiles, setTiles] = useState<TileMeta[]>(generateInitialTiles(SIZE));
   const [prevState, setPrevState] = useState<GameState | null>(null);
 
   const [score, setScore] = useState(0);
@@ -46,25 +34,19 @@ export const Game: FC = (): JSX.Element => {
 
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameWon, setIsGameWon] = useState(false);
-  const [showWinOverlay, setShowWinOverlay] = useState(true);
+  const [shouldShowWinOverlay, setShouldShowWinOverlay] = useState(true);
 
   const isMovingRef = useRef(false);
 
   const updateState = (direction: Direction) => {
     isMovingRef.current = true;
 
-    let movedState: TileMeta[];
-    let mergePairs: [TileMeta, TileMeta][];
-    let changesCount = 0;
-    let prevTiles: TileMeta[];
+    const [movedState, mergePairs, changesCount] = moveState(SIZE, tiles, direction);
+    setTiles(movedState);
 
-    setTiles((prev) => {
-      [movedState, mergePairs, changesCount] = moveState(SIZE, prev, direction);
-
-      if (changesCount > 0) prevTiles = prev;
-
-      return movedState;
-    });
+    if (changesCount > 0) {
+      setPrevState({ tiles, score });
+    }
 
     if (changesCount === 0) {
       isMovingRef.current = false;
@@ -72,23 +54,25 @@ export const Game: FC = (): JSX.Element => {
     }
 
     setTimeout(() => {
-      let hasMoves;
+      const currentState = mergeState(movedState, mergePairs);
 
-      setTiles((prev) => {
-        const currentState = mergeState(prev, mergePairs);
-        currentState.push(generateRandomTile(SIZE, currentState));
-        hasMoves = hasPossibleMoves(SIZE, currentState);
+      if (currentState.some((tile) => tile.value === 2048)) {
+        setIsGameWon(true);
+      }
 
-        return currentState;
-      });
-
+      currentState.push(generateRandomTile(SIZE, currentState));
+      const hasMoves = hasPossibleMoves(SIZE, currentState);
       if (!hasMoves) setIsGameOver(true);
 
-      setScore((prev) => {
-        setPrevState({ tiles: prevTiles, score: prev });
+      const newScore = score + getScoreFromMergePairs(mergePairs);
 
-        return prev + getScoreFromMergePairs(mergePairs);
-      });
+      if (newScore > bestScore) {
+        window.localStorage.setItem('2048_best', newScore.toString());
+        setBestScore(newScore);
+      }
+
+      setTiles(currentState);
+      setScore(newScore);
 
       isMovingRef.current = false;
     }, 300); // Should be the same as in CSS
@@ -107,24 +91,10 @@ export const Game: FC = (): JSX.Element => {
 
   const startNewGameHandler = () => {
     setScore(0);
-    setTiles(initialState);
+    setTiles(generateInitialTiles(SIZE));
     setPrevState(null);
     setIsGameOver(false);
   };
-
-  useEffect(() => {
-    window.localStorage.setItem('2048_best', bestScore.toString());
-  }, [bestScore]);
-
-  useEffect(() => {
-    if (!showWinOverlay) return;
-
-    if (tiles.some((tile) => tile.value === 2048)) setIsGameWon(true);
-  }, [tiles, showWinOverlay]);
-
-  useEffect(() => {
-    setBestScore((prev) => Math.max(prev, score));
-  }, [score]);
 
   return (
     <>
@@ -135,16 +105,10 @@ export const Game: FC = (): JSX.Element => {
         bestScore={bestScore}
       />
       <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
-        {isGameWon && showWinOverlay && (
+        {isGameWon && shouldShowWinOverlay && (
           <div className='overlay win'>
             you won
-            <button
-              className='btn'
-              onClick={() => {
-                setIsGameWon(false);
-                setShowWinOverlay(false);
-              }}
-            >
+            <button className='btn' onClick={() => setShouldShowWinOverlay(false)}>
               Continue
             </button>
           </div>
