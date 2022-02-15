@@ -1,4 +1,4 @@
-import { FC, useState, useCallback, useRef, useEffect } from 'react';
+import { FC, useState, useRef, useEffect } from 'react';
 import { TileMeta, Direction } from '../types';
 import { useHandleButtons } from '../hooks/useHandleButtons';
 import {
@@ -112,9 +112,9 @@ export const Game: FC = (): JSX.Element => {
     setIsGameOver(false);
   };
 
-  const saveBestScore = useCallback(() => {
-    window.localStorage.setItem('2048_best', Math.max(score, bestScore).toString());
-  }, [score, bestScore]);
+  useEffect(() => {
+    window.localStorage.setItem('2048_best', bestScore.toString());
+  }, [bestScore]);
 
   useEffect(() => {
     if (!showWinOverlay) return;
@@ -124,9 +124,7 @@ export const Game: FC = (): JSX.Element => {
 
   useEffect(() => {
     setBestScore((prev) => Math.max(prev, score));
-
-    return saveBestScore;
-  }, [saveBestScore, score]);
+  }, [score]);
 
   return (
     <>
