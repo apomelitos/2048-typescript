@@ -58,13 +58,14 @@ export const Game: FC = (): JSX.Element => {
 
   return (
     <>
-      {isGameOver && <h1>GAME OVER</h1>}
       <Header onStartNewGame={startNewGameHandler} onRevertStateBack={revertStateBackHandler} score={score} />
       <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
         {isGameOver && <div className='game-over'>GAME OVER</div>}
-        {tiles.map(({ id: key, value, position }) => (
-          <Tile {...{ key, value, position }} />
-        ))}
+        {tiles
+          .sort((a, b) => a.id - b.id) // Required for CSS transitions
+          .map(({ id, value, position, isMerged }) => (
+            <Tile key={id} value={value} position={position} isMerged={isMerged} />
+          ))}
         <Grid rows={ROWS} cols={COLS} />
       </div>
     </>

@@ -11,16 +11,18 @@ const SIZE = 4;
 
 const hasPossibleMoves = (tiles: TileMeta[]): boolean => {
   const matrix = getTilesMatrix(tiles);
-
+  const idxList: string[] = [];
   if (tiles.length < SIZE * SIZE) return true;
 
   for (let row = 0; row < SIZE - 1; row++) {
-    for (let col = 0; col < SIZE - 1; col++) {
+    for (let col = 0; col < SIZE; col++) {
+      idxList.push(`${row}:${col}`);
       if (
-        matrix[row][col].value === matrix[row][col + 1].value ||
+        matrix[row][col].value === matrix[row][col + 1]?.value ||
         matrix[row][col].value === matrix[row + 1][col].value
-      )
+      ) {
         return true;
+      }
     }
   }
 
@@ -59,9 +61,10 @@ const generateRandomTile = (tiles: TileMeta[]) => {
   const position = emptyCellsPositions[Math.floor(Math.random() * emptyCellsPositions.length)];
 
   return {
-    id: performance.now(),
+    id: Math.random(),
     value: 2,
     position,
+    isMerged: false,
   };
 };
 
@@ -121,8 +124,13 @@ const mergeState = (state: TileMeta[], mergePairs: [TileMeta, TileMeta][]): Tile
 
   for (const [source, destination] of mergePairs) {
     const sourceIdx = mergedState.findIndex((tile) => tile.id === source.id);
-    mergedState[sourceIdx] = { ...source, value: source.value * 2, position: destination.position };
-    toDeleteTilesIDs.push(destination.id);
+    mergedState[sourceIdx] = {
+      id: Math.random(),
+      value: source.value * 2,
+      position: destination.position,
+      isMerged: true,
+    };
+    toDeleteTilesIDs.push(destination.id, source.id);
   }
 
   return mergedState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
@@ -170,7 +178,7 @@ export const useHandleButtons = (
         }
 
         isMovingRef.current = false;
-      }, 300);
+      }, 300); // Should be the same as in CSS
     },
     [setState, setScore, setPrevState, setIsGameOver]
   );
