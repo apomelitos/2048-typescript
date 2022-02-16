@@ -10,9 +10,16 @@ type VideoControlProps = {
   isMovingRef: MutableRefObject<boolean>;
   WIDTH: number;
   HEIGHT: number;
+  isVideoEnabled: boolean;
 };
 
-export const VideoControl: FC<VideoControlProps> = ({ onDirectionChange, isMovingRef, WIDTH, HEIGHT }): JSX.Element => {
+export const VideoControl: FC<VideoControlProps> = ({
+  onDirectionChange,
+  isMovingRef,
+  WIDTH,
+  HEIGHT,
+  isVideoEnabled,
+}): JSX.Element => {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [model, setModel] = useState<handPose.HandPose | null>(null);
@@ -54,6 +61,8 @@ export const VideoControl: FC<VideoControlProps> = ({ onDirectionChange, isMovin
 
   // get stream
   useEffect(() => {
+    if (!isVideoEnabled) return;
+
     const getStream = async () => {
       const constraints = { video: { width: 320, height: 240 } };
 
@@ -67,11 +76,13 @@ export const VideoControl: FC<VideoControlProps> = ({ onDirectionChange, isMovin
 
     getStream();
 
-    return setStream((prev) => {
-      prev?.getTracks().forEach((track) => track.stop());
-      return null;
-    });
-  }, []);
+    return () => {
+      setStream((prev) => {
+        prev?.getTracks().forEach((track) => track.stop());
+        return null;
+      });
+    };
+  }, [isVideoEnabled]);
 
   // start video & load model
   useEffect(() => {

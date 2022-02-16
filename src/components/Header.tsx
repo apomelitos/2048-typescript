@@ -6,11 +6,27 @@ type HeaderProps = {
   bestScore: number;
   onStartNewGame: () => void;
   onRevertStateBack: () => void;
+  setIsVideoEnabled: React.Dispatch<boolean>;
 };
 
-export const Header: FC<HeaderProps> = ({ score, bestScore, onStartNewGame, onRevertStateBack }): JSX.Element => {
+export const Header: FC<HeaderProps> = ({
+  score,
+  bestScore,
+  onStartNewGame,
+  onRevertStateBack,
+  setIsVideoEnabled,
+}): JSX.Element => {
   return (
     <div>
+      <label htmlFor='webCamGestures'>
+        <input
+          type='checkbox'
+          name='webCamGestures'
+          id='webCamGestures'
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsVideoEnabled(e.target.checked)}
+        />
+        WebCam gestures
+      </label>
       <header className='header'>
         <div className='controls'>
           <h1>2048</h1>

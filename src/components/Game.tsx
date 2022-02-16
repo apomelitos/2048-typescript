@@ -36,6 +36,7 @@ export const Game: FC = (): JSX.Element => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameWon, setIsGameWon] = useState(false);
   const [shouldShowWinOverlay, setShouldShowWinOverlay] = useState(true);
+  const [isVideoEnabled, setIsVideoEnabled] = useState<boolean>(false);
 
   const isMovingRef = useRef(false);
 
@@ -95,6 +96,7 @@ export const Game: FC = (): JSX.Element => {
     setTiles(generateInitialTiles(SIZE));
     setPrevState(null);
     setIsGameOver(false);
+    setShouldShowWinOverlay(true);
   };
 
   return (
@@ -105,6 +107,7 @@ export const Game: FC = (): JSX.Element => {
           onRevertStateBack={revertStateBackHandler}
           score={score}
           bestScore={bestScore}
+          setIsVideoEnabled={setIsVideoEnabled}
         />
         <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
           {isGameWon && shouldShowWinOverlay && (
@@ -123,7 +126,14 @@ export const Game: FC = (): JSX.Element => {
             ))}
           <Grid size={SIZE} />
         </div>
-        <VideoControl WIDTH={320} HEIGHT={240} onDirectionChange={updateState} isMovingRef={isMovingRef} />
+
+        <VideoControl
+          isVideoEnabled={isVideoEnabled}
+          WIDTH={320}
+          HEIGHT={240}
+          onDirectionChange={updateState}
+          isMovingRef={isMovingRef}
+        />
       </div>
     </>
   );
