@@ -12,6 +12,7 @@ import {
 import { Tile } from './Tile';
 import { Grid } from './Grid';
 import { Header } from './Header';
+import { VideoControl } from './VideoControl';
 import './Game.scss';
 
 const SIZE = 4;
@@ -98,28 +99,31 @@ export const Game: FC = (): JSX.Element => {
 
   return (
     <>
-      <Header
-        onStartNewGame={startNewGameHandler}
-        onRevertStateBack={revertStateBackHandler}
-        score={score}
-        bestScore={bestScore}
-      />
-      <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
-        {isGameWon && shouldShowWinOverlay && (
-          <div className='overlay win'>
-            you won
-            <button className='btn' onClick={() => setShouldShowWinOverlay(false)}>
-              Continue
-            </button>
-          </div>
-        )}
-        {isGameOver && <div className='overlay'>game over</div>}
-        {tiles
-          .sort((a, b) => a.id - b.id) // Required for CSS transitions
-          .map(({ id, value, position, isMerged }) => (
-            <Tile key={id} value={value} position={position} isMerged={isMerged} />
-          ))}
-        <Grid size={SIZE} />
+      <div className='wrapper'>
+        <Header
+          onStartNewGame={startNewGameHandler}
+          onRevertStateBack={revertStateBackHandler}
+          score={score}
+          bestScore={bestScore}
+        />
+        <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
+          {isGameWon && shouldShowWinOverlay && (
+            <div className='overlay win'>
+              you won
+              <button className='btn' onClick={() => setShouldShowWinOverlay(false)}>
+                Continue
+              </button>
+            </div>
+          )}
+          {isGameOver && <div className='overlay'>game over</div>}
+          {tiles
+            .sort((a, b) => a.id - b.id) // Required for CSS transitions
+            .map(({ id, value, position, isMerged }) => (
+              <Tile key={id} value={value} position={position} isMerged={isMerged} />
+            ))}
+          <Grid size={SIZE} />
+        </div>
+        <VideoControl WIDTH={320} HEIGHT={240} onDirectionChange={updateState} isMovingRef={isMovingRef} />
       </div>
     </>
   );
