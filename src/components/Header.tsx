@@ -3,11 +3,12 @@ import './Header.scss';
 
 type HeaderProps = {
   score: number;
+  bestScore: number;
   onStartNewGame: () => void;
   onRevertStateBack: () => void;
 };
 
-export const Header: FC<HeaderProps> = ({ score, onStartNewGame, onRevertStateBack }): JSX.Element => {
+export const Header: FC<HeaderProps> = ({ score, bestScore, onStartNewGame, onRevertStateBack }): JSX.Element => {
   return (
     <div>
       <header className='header'>
@@ -24,7 +25,7 @@ export const Header: FC<HeaderProps> = ({ score, onStartNewGame, onRevertStateBa
           </div>
           <div className='score'>
             <h4 className='score-title'>Best</h4>
-            {score}
+            {bestScore}
           </div>
           <div className='game-button' onClick={onRevertStateBack}>
             One move back

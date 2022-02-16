@@ -74,7 +74,7 @@ export const generateRandomTile = (size: number, tiles: TileMeta[]) => {
 
   return {
     id: Math.random(),
-    value: 2,
+    value: Math.random() > 0.9 ? 4 : 2,
     position,
     isMerged: false,
   };
@@ -128,4 +128,9 @@ export const moveState = (size: number, state: TileMeta[], direction: Direction)
   }
 
   return [movedState, mergePairs, changesCount];
+};
+
+export const generateInitialTiles = (size: number) => {
+  const tile1 = generateRandomTile(size, []);
+  return [tile1, generateRandomTile(size, [tile1])];
 };
