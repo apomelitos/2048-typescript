@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@tensorflow-models/hand-pose-detection": "^0.0.1",
     "@tensorflow-models/handpose": "^0.0.7",
     "@tensorflow/tfjs-backend-webgl": "^3.13.0",
     "@tensorflow/tfjs-converter": "^3.13.0",
