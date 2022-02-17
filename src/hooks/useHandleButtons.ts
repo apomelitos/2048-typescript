@@ -1,14 +1,9 @@
-import { useEffect, MutableRefObject } from 'react';
+import { useEffect } from 'react';
 import { Direction } from '../types';
 
-export const useHandleButtons = (
-  updateState: (direction: Direction) => void,
-  isMovingRef: MutableRefObject<boolean>
-) => {
+export const useHandleButtons = (updateState: (direction: Direction) => void) => {
   useEffect(() => {
     const handleKeyPressed = (e: KeyboardEvent) => {
-      if (isMovingRef.current) return;
-
       switch (e.key) {
         case 'ArrowLeft':
           updateState('LEFT');
@@ -27,5 +22,5 @@ export const useHandleButtons = (
     window.addEventListener('keydown', handleKeyPressed);
 
     return () => window.removeEventListener('keydown', handleKeyPressed);
-  }, [updateState, isMovingRef]);
+  }, [updateState]);
 };

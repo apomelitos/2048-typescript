@@ -41,6 +41,8 @@ export const Game: FC = (): JSX.Element => {
   const isMovingRef = useRef(false);
 
   const updateState = (direction: Direction) => {
+    if (isMovingRef.current) return;
+
     isMovingRef.current = true;
 
     const [movedState, mergePairs, changesCount] = moveState(SIZE, tiles, direction);
@@ -64,6 +66,7 @@ export const Game: FC = (): JSX.Element => {
 
       currentState.push(generateRandomTile(SIZE, currentState));
       const hasMoves = hasPossibleMoves(SIZE, currentState);
+
       if (!hasMoves) setIsGameOver(true);
 
       const newScore = score + getScoreFromMergePairs(mergePairs);
@@ -80,7 +83,7 @@ export const Game: FC = (): JSX.Element => {
     }, 300); // Should be the same as in CSS
   };
 
-  useHandleButtons(updateState, isMovingRef);
+  useHandleButtons(updateState);
 
   const revertStateBackHandler = () => {
     if (isGameOver) setIsGameOver(false);
@@ -107,7 +110,7 @@ export const Game: FC = (): JSX.Element => {
           onRevertStateBack={revertStateBackHandler}
           score={score}
           bestScore={bestScore}
-          setIsVideoEnabled={setIsVideoEnabled}
+          onEnableWebCamGestures={setIsVideoEnabled}
         />
         <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
           {isGameWon && shouldShowWinOverlay && (
@@ -127,13 +130,7 @@ export const Game: FC = (): JSX.Element => {
           <Grid size={SIZE} />
         </div>
 
-        <VideoControl
-          isVideoEnabled={isVideoEnabled}
-          WIDTH={320}
-          HEIGHT={240}
-          onDirectionChange={updateState}
-          isMovingRef={isMovingRef}
-        />
+        <VideoControl isVideoEnabled={isVideoEnabled} WIDTH={320} HEIGHT={240} onDirectionChange={updateState} />
       </div>
     </>
   );

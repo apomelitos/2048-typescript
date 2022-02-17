@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useRef, MutableRefObject } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 
 import * as handPose from '@tensorflow-models/handpose';
 import '@tensorflow/tfjs-backend-webgl';
@@ -7,7 +7,6 @@ import { Direction } from '../types';
 
 type VideoControlProps = {
   onDirectionChange: (direction: Direction) => void;
-  isMovingRef: MutableRefObject<boolean>;
   WIDTH: number;
   HEIGHT: number;
   isVideoEnabled: boolean;
@@ -15,7 +14,6 @@ type VideoControlProps = {
 
 export const VideoControl: FC<VideoControlProps> = ({
   onDirectionChange,
-  isMovingRef,
   WIDTH,
   HEIGHT,
   isVideoEnabled,
@@ -45,7 +43,7 @@ export const VideoControl: FC<VideoControlProps> = ({
           const [x, y] = predictions[0].annotations.middleFinger[2];
           const newDirection = onNormalizeCoords(x, y);
 
-          if (newDirection && !isMovingRef.current) {
+          if (newDirection) {
             onDirectionChange(newDirection);
           }
         }
@@ -57,14 +55,14 @@ export const VideoControl: FC<VideoControlProps> = ({
     return () => {
       if (intervalRef.current) window.clearInterval(intervalRef.current);
     };
-  }, [model, video, stream, onDirectionChange, isMovingRef, WIDTH, HEIGHT]);
+  }, [model, video, stream, onDirectionChange, WIDTH, HEIGHT]);
 
   // get stream
   useEffect(() => {
     if (!isVideoEnabled) return;
 
     const getStream = async () => {
-      const constraints = { video: { width: 320, height: 240 } };
+      const constraints = { video: { width: WIDTH, height: HEIGHT } };
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -82,7 +80,7 @@ export const VideoControl: FC<VideoControlProps> = ({
         return null;
       });
     };
-  }, [isVideoEnabled]);
+  }, [isVideoEnabled, WIDTH, HEIGHT]);
 
   // start video & load model
   useEffect(() => {
@@ -103,7 +101,7 @@ export const VideoControl: FC<VideoControlProps> = ({
   }, [stream, video]);
 
   return (
-    <div className='video-wrapper' style={{ border: '1px solid red', textAlign: 'center', padding: 10 }}>
+    <div className='video-wrapper' style={{ textAlign: 'center', padding: 10 }}>
       {stream && <video ref={setVideo} autoPlay muted></video>}
     </div>
   );
