@@ -12,6 +12,7 @@ import {
 import { Tile } from './Tile';
 import { Grid } from './Grid';
 import { Header } from './Header';
+import { VideoControl } from './VideoControl';
 import './Game.scss';
 
 const SIZE = 4;
@@ -35,10 +36,13 @@ export const Game: FC = (): JSX.Element => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameWon, setIsGameWon] = useState(false);
   const [shouldShowWinOverlay, setShouldShowWinOverlay] = useState(true);
+  const [isVideoEnabled, setIsVideoEnabled] = useState<boolean>(false);
 
   const isMovingRef = useRef(false);
 
   const updateState = (direction: Direction) => {
+    if (isMovingRef.current) return;
+
     isMovingRef.current = true;
 
     const [movedState, mergePairs, changesCount] = moveState(SIZE, tiles, direction);
@@ -62,6 +66,7 @@ export const Game: FC = (): JSX.Element => {
 
       currentState.push(generateRandomTile(SIZE, currentState));
       const hasMoves = hasPossibleMoves(SIZE, currentState);
+
       if (!hasMoves) setIsGameOver(true);
 
       const newScore = score + getScoreFromMergePairs(mergePairs);
@@ -78,7 +83,7 @@ export const Game: FC = (): JSX.Element => {
     }, 300); // Should be the same as in CSS
   };
 
-  useHandleButtons(updateState, isMovingRef);
+  useHandleButtons(updateState);
 
   const revertStateBackHandler = () => {
     if (isGameOver) setIsGameOver(false);
@@ -94,32 +99,38 @@ export const Game: FC = (): JSX.Element => {
     setTiles(generateInitialTiles(SIZE));
     setPrevState(null);
     setIsGameOver(false);
+    setShouldShowWinOverlay(true);
   };
 
   return (
     <>
-      <Header
-        onStartNewGame={startNewGameHandler}
-        onRevertStateBack={revertStateBackHandler}
-        score={score}
-        bestScore={bestScore}
-      />
-      <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
-        {isGameWon && shouldShowWinOverlay && (
-          <div className='overlay win'>
-            you won
-            <button className='btn' onClick={() => setShouldShowWinOverlay(false)}>
-              Continue
-            </button>
-          </div>
-        )}
-        {isGameOver && <div className='overlay'>game over</div>}
-        {tiles
-          .sort((a, b) => a.id - b.id) // Required for CSS transitions
-          .map(({ id, value, position, isMerged }) => (
-            <Tile key={id} value={value} position={position} isMerged={isMerged} />
-          ))}
-        <Grid size={SIZE} />
+      <div className='wrapper'>
+        <Header
+          onStartNewGame={startNewGameHandler}
+          onRevertStateBack={revertStateBackHandler}
+          score={score}
+          bestScore={bestScore}
+          onEnableWebCamGestures={setIsVideoEnabled}
+        />
+        <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
+          {isGameWon && shouldShowWinOverlay && (
+            <div className='overlay win'>
+              you won
+              <button className='btn' onClick={() => setShouldShowWinOverlay(false)}>
+                Continue
+              </button>
+            </div>
+          )}
+          {isGameOver && <div className='overlay'>game over</div>}
+          {tiles
+            .sort((a, b) => a.id - b.id) // Required for CSS transitions
+            .map(({ id, value, position, isMerged }) => (
+              <Tile key={id} value={value} position={position} isMerged={isMerged} />
+            ))}
+          <Grid size={SIZE} />
+        </div>
+
+        <VideoControl isVideoEnabled={isVideoEnabled} WIDTH={320} HEIGHT={240} onDirectionChange={updateState} />
       </div>
     </>
   );
