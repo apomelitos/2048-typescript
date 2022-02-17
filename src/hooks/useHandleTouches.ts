@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { Direction } from '../types';
 
 type Coords = {
@@ -22,21 +22,21 @@ const getSwipeDirection = (startCoords: Coords, endCoords: Coords): Direction | 
 };
 
 export const useHandleTouches = (onSwipe: (direction: Direction) => void) => {
-  const [startCoords, setStartCoords] = useState<Coords | null>(null);
+  const startCoordsRef = useRef<Coords | null>(null);
 
   const processSwipe = (endCoords: Coords) => {
-    if (!startCoords) return;
+    if (!startCoordsRef.current) return;
 
-    const direction = getSwipeDirection(startCoords, endCoords);
+    const direction = getSwipeDirection(startCoordsRef.current, endCoords);
 
     if (direction) onSwipe(direction);
 
-    setStartCoords(null);
+    startCoordsRef.current = null;
   };
 
   const onTouchStart = (e: React.TouchEvent) => {
     const { clientX, clientY } = e.touches[0];
-    setStartCoords({ clientX, clientY });
+    startCoordsRef.current = { clientX, clientY };
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
