@@ -1,6 +1,7 @@
 import { FC, useState, useRef } from 'react';
 import { TileMeta, Direction } from '../types';
 import { useHandleButtons } from '../hooks/useHandleButtons';
+import { useHandleTouches } from '../hooks/useHandleTouches';
 import {
   moveState,
   hasPossibleMoves,
@@ -84,6 +85,7 @@ export const Game: FC = (): JSX.Element => {
   };
 
   useHandleButtons(updateState);
+  const [onTouchStart, onTouchEnd] = useHandleTouches((dir) => updateState(dir));
 
   const revertStateBackHandler = () => {
     if (isGameOver) setIsGameOver(false);
@@ -112,7 +114,12 @@ export const Game: FC = (): JSX.Element => {
           bestScore={bestScore}
           onEnableWebCamGestures={setIsVideoEnabled}
         />
-        <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
+        <div
+          className='board'
+          onTouchEnd={onTouchEnd}
+          onTouchStart={onTouchStart}
+          style={{ width: BOARD_WIDTH, position: 'relative' }}
+        >
           {isGameWon && shouldShowWinOverlay && (
             <div className='overlay win'>
               you won
