@@ -8,7 +8,6 @@ function* createGenerator(start: number) {
   let current = start;
   while (true) {
     yield current++;
-    console.log('Hello');
   }
 }
 

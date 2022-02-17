@@ -49,28 +49,22 @@ export const Game: FC = (): JSX.Element => {
     const [movedState, mergePairs, changesCount] = moveState(SIZE, tiles, direction);
     setTiles(movedState);
 
-    if (changesCount > 0) {
-      setPrevState({ tiles, score });
-    }
-
     if (changesCount === 0) {
       isMovingRef.current = false;
       return;
     }
 
+    setPrevState({ tiles, score });
+
     setTimeout(() => {
       const currentState = mergeState(movedState, mergePairs);
+      const hasMoves = hasPossibleMoves(SIZE, currentState);
+      const newScore = score + getScoreFromMergePairs(mergePairs);
+      currentState.push(generateRandomTile(SIZE, currentState));
 
       if (currentState.some((tile) => tile.value === 2048)) {
         setIsGameWon(true);
       }
-
-      currentState.push(generateRandomTile(SIZE, currentState));
-      const hasMoves = hasPossibleMoves(SIZE, currentState);
-
-      if (!hasMoves) setIsGameOver(true);
-
-      const newScore = score + getScoreFromMergePairs(mergePairs);
 
       if (newScore > bestScore) {
         window.localStorage.setItem('2048_best', newScore.toString());
@@ -79,6 +73,7 @@ export const Game: FC = (): JSX.Element => {
 
       setTiles(currentState);
       setScore(newScore);
+      setIsGameOver(!hasMoves);
 
       isMovingRef.current = false;
     }, 300); // Should be the same as in CSS
