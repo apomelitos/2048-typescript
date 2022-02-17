@@ -85,7 +85,7 @@ export const Game: FC = (): JSX.Element => {
   };
 
   useHandleButtons(updateState);
-  const [onTouchStart, onTouchEnd] = useHandleTouches((dir) => updateState(dir));
+  const [onTouchStart, onTouchEnd] = useHandleTouches(updateState);
 
   const revertStateBackHandler = () => {
     if (isGameOver) setIsGameOver(false);
