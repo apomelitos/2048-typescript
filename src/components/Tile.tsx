@@ -4,11 +4,20 @@ import './Tile.scss';
 type TileProps = {
   value: number;
   position: [number, number];
+  boardSize: number;
   isMerged?: boolean;
 };
 
-export const Tile: FC<TileProps> = ({ value, position: [row, col], isMerged }): JSX.Element => {
+export const Tile: FC<TileProps> = ({ value, position: [row, col], isMerged, boardSize }): JSX.Element => {
   return (
-    <div className={`tile tile-${value} ${isMerged ? 'merged' : 'new'} row-${row + 1} col-${col + 1}`}>{value}</div>
+    <div
+      className={`tile-wrapper ${isMerged ? 'merged' : 'new'}`}
+      style={{
+        top: `${(row * 100) / boardSize}%`,
+        left: `${(col * 100) / boardSize}%`,
+      }}
+    >
+      <div className={`tile tile-${value}`}>{value}</div>
+    </div>
   );
 };

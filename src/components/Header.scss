@@ -23,7 +23,7 @@ $bg-color: #bbada0;
 
 .score {
   &-title {
-    font-size: 20px;
+    font-size: 4vmin;
     margin: 0;
     color: $text-color;
   }
@@ -33,8 +33,9 @@ $bg-color: #bbada0;
   color: white;
   text-align: center;
   border-radius: $border-radius;
-  font-size: 26px;
+  font-size: 4vmin;
   flex: 1;
+  word-wrap: nowrap;
 }
 
 .game-button {
@@ -42,50 +43,15 @@ $bg-color: #bbada0;
   width: 70px;
   background-color: $bg-color;
   margin: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 2vmin;
   padding: 20px 10px;
   border-radius: $border-radius;
   font-weight: 700;
-  font-size: 20px;
+  font-size: 4vmin;
   text-align: center;
   cursor: pointer;
 }
 
 input[type='checkbox'] {
   margin: 5px 10px;
-}
-
-@media only screen and (max-width: 500px) {
-  .game-button {
-    padding: 10px 5px;
-    font-size: 16px;
-  }
-
-  .score {
-    margin: 5px;
-    padding: 5px;
-    font-size: 20px;
-  }
-}
-
-@media only screen and (orientation: landscape) and (max-height: 700px) {
-  .game-button {
-    padding: 10px 5px;
-    font-size: 16px;
-  }
-
-  .score {
-    margin: 5px;
-    padding: 5px;
-    font-size: 20px;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    &-title {
-      margin: 0 20px;
-    }
-  }
-  .title {
-    display: none;
-  }
 }

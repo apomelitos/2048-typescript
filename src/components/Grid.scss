@@ -1,32 +1,23 @@
+$gap: 1vmin;
+
 .grid {
   display: flex;
   flex-wrap: wrap;
-  background-color: #bbada0;
-  border: 0px solid #bbada0;
-  border-radius: 5px;
-  padding: 10px;
+  margin: $gap;
+  position: relative;
+  box-sizing: border-box;
   &-cell {
-    width: calc(100% / 4 - 20px);
+    padding: $gap;
+    width: var(--cell-size);
     aspect-ratio: 1/1;
-    margin: 10px;
-    border-radius: 5px;
-    background: gray;
-  }
-}
 
-@media only screen and (max-width: 600px) {
-  .grid {
-    &-cell {
-      width: calc(100% / 4 - 20px);
-    }
-  }
-}
-
-@media only screen and (max-width: 500px), only screen and (orientation: landscape) and (max-height: 500px) {
-  .grid {
-    &-cell {
-      margin: 5px;
-      width: calc(100% / 4 - 10px);
+    box-sizing: border-box;
+    &-inner {
+      box-sizing: border-box;
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 5px;
+      background-color: #9e9494;
     }
   }
 }

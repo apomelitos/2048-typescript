@@ -4,17 +4,21 @@ import './Header.scss';
 type HeaderProps = {
   score: number;
   bestScore: number;
-  onStartNewGame: () => void;
+  boardSize: number;
+  onStartNewGame: (size: number) => void;
   onRevertStateBack: () => void;
   onEnableWebCamGestures: React.Dispatch<boolean>;
+  onResizeBoard: React.Dispatch<number>;
 };
 
 export const Header: FC<HeaderProps> = ({
   score,
   bestScore,
+  boardSize,
   onStartNewGame,
   onRevertStateBack,
   onEnableWebCamGestures,
+  onResizeBoard,
 }): JSX.Element => {
   return (
     <div>
@@ -27,6 +31,19 @@ export const Header: FC<HeaderProps> = ({
         />
         WebCam gestures
       </label>
+      <select
+        name='size'
+        id='size'
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+          onResizeBoard(parseInt(e.target.value));
+        }}
+      >
+        {[4, 5, 6].map((size) => (
+          <option defaultChecked={boardSize === size} value={size}>
+            {size}
+          </option>
+        ))}
+      </select>
       <header className='header'>
         <h1 className='title'>2048</h1>
         <div className='controls' style={{}}>
@@ -40,7 +57,7 @@ export const Header: FC<HeaderProps> = ({
           </div>
         </div>
         <div className='controls'>
-          <div className='game-button' onClick={onStartNewGame}>
+          <div className='game-button' onClick={() => onStartNewGame(boardSize)}>
             New game
           </div>
           <div className='game-button' onClick={onRevertStateBack}>

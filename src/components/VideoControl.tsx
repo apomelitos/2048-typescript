@@ -101,14 +101,5 @@ export const VideoControl: FC<VideoControlProps> = ({
     };
   }, [stream, video]);
 
-  return (
-    <div
-      className='video-wrapper'
-      style={{
-        border: isVideoEnabled ? '1px solid lightgray' : 'none',
-      }}
-    >
-      {stream && <video ref={setVideo} autoPlay muted></video>}
-    </div>
-  );
+  return <div className='video-wrapper'>{stream && <video ref={setVideo} autoPlay muted></video>}</div>;
 };
