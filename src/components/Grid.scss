@@ -1,15 +1,23 @@
+$gap: 1vmin;
+
 .grid {
   display: flex;
   flex-wrap: wrap;
-  background-color: #bbada0;
-  border: 0px solid #bbada0;
-  border-radius: 5px;
-  padding: 10px;
+  margin: $gap;
+  position: relative;
+  box-sizing: border-box;
   &-cell {
-    width: 80px;
-    height: 80px;
-    margin: 10px;
-    border-radius: 5px;
-    background: gray;
+    padding: $gap;
+    width: var(--cell-size);
+    aspect-ratio: 1/1;
+
+    box-sizing: border-box;
+    &-inner {
+      box-sizing: border-box;
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 5px;
+      background-color: #9e9494;
+    }
   }
 }

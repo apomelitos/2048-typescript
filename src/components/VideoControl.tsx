@@ -4,6 +4,7 @@ import * as handPose from '@tensorflow-models/handpose';
 import '@tensorflow/tfjs-backend-webgl';
 
 import { Direction } from '../types';
+import './VideoControl.scss';
 
 type VideoControlProps = {
   onDirectionChange: (direction: Direction) => void;
@@ -39,7 +40,7 @@ export const VideoControl: FC<VideoControlProps> = ({
 
         const predictions = await model.estimateHands(video, true);
 
-        if (predictions.length && predictions[0].handInViewConfidence > 0.999) {
+        if (predictions.length && predictions[0].handInViewConfidence > 0.99) {
           const [x, y] = predictions[0].annotations.middleFinger[2];
           const newDirection = onNormalizeCoords(x, y);
 
@@ -100,9 +101,5 @@ export const VideoControl: FC<VideoControlProps> = ({
     };
   }, [stream, video]);
 
-  return (
-    <div className='video-wrapper' style={{ textAlign: 'center', padding: 10 }}>
-      {stream && <video ref={setVideo} autoPlay muted></video>}
-    </div>
-  );
+  return <div className='video-wrapper'>{stream && <video ref={setVideo} autoPlay muted></video>}</div>;
 };

@@ -1,4 +1,4 @@
-import { FC, useState, useRef } from 'react';
+import { FC, useState, useRef, useEffect } from 'react';
 import { TileMeta, Direction } from '../types';
 import { useHandleButtons } from '../hooks/useHandleButtons';
 import { useHandleTouches } from '../hooks/useHandleTouches';
@@ -10,17 +10,12 @@ import {
   getScoreFromMergePairs,
   generateInitialTiles,
 } from '../utils/gameUtils';
-import { Tile } from './Tile';
 import { Grid } from './Grid';
 import { Header } from './Header';
 import { VideoControl } from './VideoControl';
 import './Game.scss';
 
-const SIZE = 4;
-const TILE_TOTAL_WIDTH = 100;
-const BOARD_PADDING = 10;
-const CONTAINER_WIDTH = TILE_TOTAL_WIDTH * SIZE;
-const BOARD_WIDTH = CONTAINER_WIDTH + BOARD_PADDING * 2;
+const DEFAULT_SIZE = 4;
 
 type GameState = {
   tiles: TileMeta[];
@@ -28,7 +23,8 @@ type GameState = {
 };
 
 export const Game: FC = (): JSX.Element => {
-  const [tiles, setTiles] = useState<TileMeta[]>(generateInitialTiles(SIZE));
+  const [size, setSize] = useState(DEFAULT_SIZE);
+  const [tiles, setTiles] = useState<TileMeta[]>(generateInitialTiles(size));
   const [prevState, setPrevState] = useState<GameState | null>(null);
 
   const [score, setScore] = useState(0);
@@ -46,7 +42,7 @@ export const Game: FC = (): JSX.Element => {
 
     isMovingRef.current = true;
 
-    const [movedState, mergePairs, changesCount] = moveState(SIZE, tiles, direction);
+    const [movedState, mergePairs, changesCount] = moveState(size, tiles, direction);
     setTiles(movedState);
 
     if (changesCount === 0) {
@@ -58,9 +54,9 @@ export const Game: FC = (): JSX.Element => {
 
     setTimeout(() => {
       const currentState = mergeState(movedState, mergePairs);
-      const hasMoves = hasPossibleMoves(SIZE, currentState);
+      const hasMoves = hasPossibleMoves(size, currentState);
       const newScore = score + getScoreFromMergePairs(mergePairs);
-      currentState.push(generateRandomTile(SIZE, currentState));
+      currentState.push(generateRandomTile(size, currentState));
 
       if (currentState.some((tile) => tile.value === 2048)) {
         setIsGameWon(true);
@@ -91,13 +87,17 @@ export const Game: FC = (): JSX.Element => {
     }
   };
 
-  const startNewGameHandler = () => {
+  const startNewGameHandler = (size: number) => {
     setScore(0);
-    setTiles(generateInitialTiles(SIZE));
+    setTiles(generateInitialTiles(size));
     setPrevState(null);
     setIsGameOver(false);
     setShouldShowWinOverlay(true);
   };
+
+  useEffect(() => {
+    startNewGameHandler(size);
+  }, [size]);
 
   return (
     <>
@@ -107,14 +107,11 @@ export const Game: FC = (): JSX.Element => {
           onRevertStateBack={revertStateBackHandler}
           score={score}
           bestScore={bestScore}
+          boardSize={size}
           onEnableWebCamGestures={setIsVideoEnabled}
+          onResizeBoard={setSize}
         />
-        <div
-          className='board'
-          onTouchEnd={onTouchEnd}
-          onTouchStart={onTouchStart}
-          style={{ width: BOARD_WIDTH, position: 'relative' }}
-        >
+        <div className='board' onTouchEnd={onTouchEnd} onTouchStart={onTouchStart}>
           {isGameWon && shouldShowWinOverlay && (
             <div className='overlay win'>
               you won
@@ -124,16 +121,11 @@ export const Game: FC = (): JSX.Element => {
             </div>
           )}
           {isGameOver && <div className='overlay'>game over</div>}
-          {tiles
-            .sort((a, b) => a.id - b.id) // Required for CSS transitions
-            .map(({ id, value, position, isMerged }) => (
-              <Tile key={id} value={value} position={position} isMerged={isMerged} />
-            ))}
-          <Grid size={SIZE} />
-        </div>
 
-        <VideoControl isVideoEnabled={isVideoEnabled} WIDTH={320} HEIGHT={240} onDirectionChange={updateState} />
+          <Grid size={size} tiles={tiles} />
+        </div>
       </div>
+      <VideoControl isVideoEnabled={isVideoEnabled} WIDTH={320} HEIGHT={240} onDirectionChange={updateState} />
     </>
   );
 };
