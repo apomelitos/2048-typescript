@@ -1,6 +1,7 @@
 import { FC, useState, useRef } from 'react';
 import { TileMeta, Direction } from '../types';
 import { useHandleButtons } from '../hooks/useHandleButtons';
+import { useHandleTouches } from '../hooks/useHandleTouches';
 import {
   moveState,
   hasPossibleMoves,
@@ -48,28 +49,22 @@ export const Game: FC = (): JSX.Element => {
     const [movedState, mergePairs, changesCount] = moveState(SIZE, tiles, direction);
     setTiles(movedState);
 
-    if (changesCount > 0) {
-      setPrevState({ tiles, score });
-    }
-
     if (changesCount === 0) {
       isMovingRef.current = false;
       return;
     }
 
+    setPrevState({ tiles, score });
+
     setTimeout(() => {
       const currentState = mergeState(movedState, mergePairs);
+      const hasMoves = hasPossibleMoves(SIZE, currentState);
+      const newScore = score + getScoreFromMergePairs(mergePairs);
+      currentState.push(generateRandomTile(SIZE, currentState));
 
       if (currentState.some((tile) => tile.value === 2048)) {
         setIsGameWon(true);
       }
-
-      currentState.push(generateRandomTile(SIZE, currentState));
-      const hasMoves = hasPossibleMoves(SIZE, currentState);
-
-      if (!hasMoves) setIsGameOver(true);
-
-      const newScore = score + getScoreFromMergePairs(mergePairs);
 
       if (newScore > bestScore) {
         window.localStorage.setItem('2048_best', newScore.toString());
@@ -78,12 +73,14 @@ export const Game: FC = (): JSX.Element => {
 
       setTiles(currentState);
       setScore(newScore);
+      setIsGameOver(!hasMoves);
 
       isMovingRef.current = false;
     }, 300); // Should be the same as in CSS
   };
 
   useHandleButtons(updateState);
+  const [onTouchStart, onTouchEnd] = useHandleTouches(updateState);
 
   const revertStateBackHandler = () => {
     if (isGameOver) setIsGameOver(false);
@@ -112,7 +109,12 @@ export const Game: FC = (): JSX.Element => {
           bestScore={bestScore}
           onEnableWebCamGestures={setIsVideoEnabled}
         />
-        <div className='board' style={{ width: BOARD_WIDTH, position: 'relative' }}>
+        <div
+          className='board'
+          onTouchEnd={onTouchEnd}
+          onTouchStart={onTouchStart}
+          style={{ width: BOARD_WIDTH, position: 'relative' }}
+        >
           {isGameWon && shouldShowWinOverlay && (
             <div className='overlay win'>
               you won

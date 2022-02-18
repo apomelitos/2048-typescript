@@ -4,6 +4,15 @@ type Position = [number, number];
 
 type MoveStateReturn = [TileMeta[], [TileMeta, TileMeta][], number];
 
+function* createGenerator(start: number) {
+  let current = start;
+  while (true) {
+    yield current++;
+  }
+}
+
+const idGenerator = createGenerator(0);
+
 const getTilesMatrix = (size: number, tiles: TileMeta[]): TileMeta[][] => {
   const matrix: TileMeta[][] = Array<TileMeta[]>(size)
     .fill([])
@@ -28,12 +37,12 @@ export const mergeState = (state: TileMeta[], mergePairs: [TileMeta, TileMeta][]
   for (const [source, destination] of mergePairs) {
     const sourceIdx = mergedState.findIndex((tile) => tile.id === source.id);
     mergedState[sourceIdx] = {
-      id: Math.random(),
+      id: idGenerator.next().value || 0,
       value: source.value * 2,
       position: destination.position,
       isMerged: true,
     };
-    toDeleteTilesIDs.push(destination.id, source.id);
+    toDeleteTilesIDs.push(destination.id);
   }
 
   return mergedState.filter((tile) => !toDeleteTilesIDs.includes(tile.id));
@@ -73,7 +82,7 @@ export const generateRandomTile = (size: number, tiles: TileMeta[]) => {
   const position = emptyCellsPositions[Math.floor(Math.random() * emptyCellsPositions.length)];
 
   return {
-    id: Math.random(),
+    id: idGenerator.next().value || 0,
     value: Math.random() > 0.9 ? 4 : 2,
     position,
     isMerged: false,
