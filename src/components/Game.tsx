@@ -95,18 +95,6 @@ export const Game: FC = (): JSX.Element => {
     setShouldShowWinOverlay(true);
   };
 
-  const onResizeWindowHandler = () => {
-    setTiles((prev) => [...prev]);
-  };
-
-  useEffect(() => {
-    window.addEventListener('resize', onResizeWindowHandler);
-
-    return () => {
-      window.removeEventListener('resize', onResizeWindowHandler);
-    };
-  }, []);
-
   return (
     <>
       <div className='wrapper'>
