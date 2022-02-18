@@ -1,4 +1,4 @@
-import { FC, useState, useRef } from 'react';
+import { FC, useState, useRef, useEffect } from 'react';
 import { TileMeta, Direction } from '../types';
 import { useHandleButtons } from '../hooks/useHandleButtons';
 import { useHandleTouches } from '../hooks/useHandleTouches';
@@ -17,10 +17,6 @@ import { VideoControl } from './VideoControl';
 import './Game.scss';
 
 const SIZE = 4;
-const TILE_TOTAL_WIDTH = 100;
-const BOARD_PADDING = 10;
-const CONTAINER_WIDTH = TILE_TOTAL_WIDTH * SIZE;
-const BOARD_WIDTH = CONTAINER_WIDTH + BOARD_PADDING * 2;
 
 type GameState = {
   tiles: TileMeta[];
@@ -99,6 +95,18 @@ export const Game: FC = (): JSX.Element => {
     setShouldShowWinOverlay(true);
   };
 
+  const onResizeWindowHandler = () => {
+    setTiles((prev) => [...prev]);
+  };
+
+  useEffect(() => {
+    window.addEventListener('resize', onResizeWindowHandler);
+
+    return () => {
+      window.removeEventListener('resize', onResizeWindowHandler);
+    };
+  }, []);
+
   return (
     <>
       <div className='wrapper'>
@@ -109,12 +117,7 @@ export const Game: FC = (): JSX.Element => {
           bestScore={bestScore}
           onEnableWebCamGestures={setIsVideoEnabled}
         />
-        <div
-          className='board'
-          onTouchEnd={onTouchEnd}
-          onTouchStart={onTouchStart}
-          style={{ width: BOARD_WIDTH, position: 'relative' }}
-        >
+        <div className='board' onTouchEnd={onTouchEnd} onTouchStart={onTouchStart}>
           {isGameWon && shouldShowWinOverlay && (
             <div className='overlay win'>
               you won
@@ -131,9 +134,8 @@ export const Game: FC = (): JSX.Element => {
             ))}
           <Grid size={SIZE} />
         </div>
-
-        <VideoControl isVideoEnabled={isVideoEnabled} WIDTH={320} HEIGHT={240} onDirectionChange={updateState} />
       </div>
+      <VideoControl isVideoEnabled={isVideoEnabled} WIDTH={320} HEIGHT={240} onDirectionChange={updateState} />
     </>
   );
 };

@@ -39,7 +39,7 @@ export const VideoControl: FC<VideoControlProps> = ({
 
         const predictions = await model.estimateHands(video, true);
 
-        if (predictions.length && predictions[0].handInViewConfidence > 0.999) {
+        if (predictions.length && predictions[0].handInViewConfidence > 0.99) {
           const [x, y] = predictions[0].annotations.middleFinger[2];
           const newDirection = onNormalizeCoords(x, y);
 
@@ -100,8 +100,15 @@ export const VideoControl: FC<VideoControlProps> = ({
     };
   }, [stream, video]);
 
+  const styles = {
+    border: isVideoEnabled ? '1px solid lightgray' : 'none',
+    maWidth: '100%',
+    textAlign: 'center',
+    padding: 10,
+  } as React.CSSProperties;
+
   return (
-    <div className='video-wrapper' style={{ textAlign: 'center', padding: 10 }}>
+    <div className='video-wrapper' style={styles}>
       {stream && <video ref={setVideo} autoPlay muted></video>}
     </div>
   );

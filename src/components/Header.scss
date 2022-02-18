@@ -2,24 +2,23 @@ $border-radius: 5px;
 $text-color: #887070;
 $bg-color: #bbada0;
 
-.header h1 {
-  margin: 10px;
-  color: $text-color;
-  font-size: 52px;
-}
-
 .header {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: flex-end;
+  .title {
+    margin: 10px;
+    color: $text-color;
+    font-size: 52px;
+  }
 }
 
 .controls {
   display: flex;
-  flex-wrap: wrap;
+  width: 100%;
   color: $text-color;
-  padding: 10px 0;
-  width: 50%;
+  padding: 0;
 }
 
 .score {
@@ -43,6 +42,7 @@ $bg-color: #bbada0;
   width: 70px;
   background-color: $bg-color;
   margin: 5px;
+  margin-bottom: 10px;
   padding: 20px 10px;
   border-radius: $border-radius;
   font-weight: 700;
@@ -52,5 +52,40 @@ $bg-color: #bbada0;
 }
 
 input[type='checkbox'] {
-  margin: 10px;
+  margin: 5px 10px;
+}
+
+@media only screen and (max-width: 500px) {
+  .game-button {
+    padding: 10px 5px;
+    font-size: 16px;
+  }
+
+  .score {
+    margin: 5px;
+    padding: 5px;
+    font-size: 20px;
+  }
+}
+
+@media only screen and (orientation: landscape) and (max-height: 700px) {
+  .game-button {
+    padding: 10px 5px;
+    font-size: 16px;
+  }
+
+  .score {
+    margin: 5px;
+    padding: 5px;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    &-title {
+      margin: 0 20px;
+    }
+  }
+  .title {
+    display: none;
+  }
 }

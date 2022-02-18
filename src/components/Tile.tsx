@@ -8,18 +8,20 @@ type TileProps = {
 };
 
 type TopLeftStyles = {
-  top: number;
-  left: number;
+  top: number | string;
+  left: number | string;
 };
 
-const positionToPixels = ([row, col]: number[]): TopLeftStyles => {
+const positionToPixels = ([row, col]: [number, number]): TopLeftStyles => {
+  const tileMargin = window.innerWidth <= 500 ? 5 : 10;
+
   return {
-    top: row * 100 + 10,
-    left: col * 100 + 10,
+    top: `calc(${row} * ((100% - 20px) / 4) + ${tileMargin}px)`,
+    left: `calc(${col} * ((100% - 20px) / 4) + ${tileMargin}px)`,
   };
 };
 
-export const Tile: FC<TileProps> = ({ value, position, isMerged = false }): JSX.Element => {
+export const Tile: FC<TileProps> = ({ value, position, isMerged }): JSX.Element => {
   return (
     <div className={`tile tile-${value} ${isMerged ? 'merged' : 'new'}`} style={positionToPixels(position)}>
       {value}

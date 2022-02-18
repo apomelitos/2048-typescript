@@ -6,10 +6,27 @@
   border-radius: 5px;
   padding: 10px;
   &-cell {
-    width: 80px;
-    height: 80px;
+    width: calc(100% / 4 - 20px);
+    aspect-ratio: 1/1;
     margin: 10px;
     border-radius: 5px;
     background: gray;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .grid {
+    &-cell {
+      width: calc(100% / 4 - 20px);
+    }
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .grid {
+    &-cell {
+      margin: 5px;
+      width: calc(100% / 4 - 10px);
+    }
   }
 }

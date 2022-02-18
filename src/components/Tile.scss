@@ -7,15 +7,18 @@ $tile-size: 80px;
 }
 
 .tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   position: absolute;
-  width: $tile-size;
-  height: $tile-size;
+  width: calc(((100% - 20px) / 4 - 20px));
+  aspect-ratio: 1/1;
   margin: 10px;
   border-radius: 5px;
-  font-size: 36px;
+  font-size: 40px;
   text-align: center;
   box-sizing: border-box;
-  line-height: $tile-size;
   transition-property: color, background-color, top, left;
   transition-duration: 300ms; /* duration should correspond to the delay of setting merged state */
 
@@ -77,5 +80,37 @@ $tile-size: 80px;
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .tile {
+    width: calc((100% - 20px) / 4 - 20px);
+    font-size: 36px;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .tile {
+    width: calc((100% - 20px) / 4 - 10px);
+    font-size: 30px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .tile {
+    font-size: 24px;
+  }
+}
+
+@media only screen and (orientation: landscape) and (max-height: 700px) {
+  .tile {
+    font-size: 26px;
+  }
+}
+
+@media only screen and (orientation: landscape) and (max-height: 500px) {
+  .tile {
+    font-size: 22px;
   }
 }
