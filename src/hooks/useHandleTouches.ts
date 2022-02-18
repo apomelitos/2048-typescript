@@ -35,11 +35,13 @@ export const useHandleTouches = (onSwipe: (direction: Direction) => void) => {
   };
 
   const onTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
     const { clientX, clientY } = e.touches[0];
     startCoordsRef.current = { clientX, clientY };
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
     const { clientX, clientY } = e.changedTouches[0];
     processSwipe({ clientX, clientY });
   };
