@@ -8,13 +8,8 @@
   margin: 0 20px;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 .board {
   position: relative;
-  margin: 0 auto;
   max-width: 800px;
   width: 100%;
   aspect-ratio: 1/1;
@@ -70,6 +65,7 @@
     flex-direction: row;
     .board {
       width: auto;
+      height: 80vh;
     }
   }
 }

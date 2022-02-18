@@ -4,6 +4,7 @@ import * as handPose from '@tensorflow-models/handpose';
 import '@tensorflow/tfjs-backend-webgl';
 
 import { Direction } from '../types';
+import './VideoControl.scss';
 
 type VideoControlProps = {
   onDirectionChange: (direction: Direction) => void;
@@ -100,15 +101,13 @@ export const VideoControl: FC<VideoControlProps> = ({
     };
   }, [stream, video]);
 
-  const styles = {
-    border: isVideoEnabled ? '1px solid lightgray' : 'none',
-    maWidth: '100%',
-    textAlign: 'center',
-    padding: 10,
-  } as React.CSSProperties;
-
   return (
-    <div className='video-wrapper' style={styles}>
+    <div
+      className='video-wrapper'
+      style={{
+        border: isVideoEnabled ? '1px solid lightgray' : 'none',
+      }}
+    >
       {stream && <video ref={setVideo} autoPlay muted></video>}
     </div>
   );
