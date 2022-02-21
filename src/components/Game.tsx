@@ -103,20 +103,21 @@ export const Game: FC = (): JSX.Element => {
     startNewGameHandler(size);
   }, [size]);
 
-  const overlay = isGameWon
-    ? shouldShowWinOverlay && (
-        <div className='overlay win'>
-          you won
-          <button
-            className='btn'
-            onClick={() => setShouldShowWinOverlay(false)}
-            onTouchStart={() => setShouldShowWinOverlay(false)}
-          >
-            Continue
-          </button>
-        </div>
-      )
-    : isGameOver && <div className='overlay'>game over</div>;
+  const overlay =
+    isGameWon && shouldShowWinOverlay ? (
+      <div className='overlay win'>
+        you won
+        <button
+          className='btn'
+          onClick={() => setShouldShowWinOverlay(false)}
+          onTouchStart={() => setShouldShowWinOverlay(false)}
+        >
+          Continue
+        </button>
+      </div>
+    ) : (
+      isGameOver && <div className='overlay'>game over</div>
+    );
 
   return (
     <>
