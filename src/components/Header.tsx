@@ -5,6 +5,7 @@ type HeaderProps = {
   score: number;
   bestScore: number;
   boardSize: number;
+  prevStateIsNull: boolean;
   onStartNewGame: (size: number) => void;
   onRevertStateBack: () => void;
   onEnableWebCamGestures: React.Dispatch<boolean>;
@@ -15,6 +16,7 @@ export const Header: FC<HeaderProps> = ({
   score,
   bestScore,
   boardSize,
+  prevStateIsNull,
   onStartNewGame,
   onRevertStateBack,
   onEnableWebCamGestures,
@@ -38,15 +40,15 @@ export const Header: FC<HeaderProps> = ({
           onResizeBoard(parseInt(e.target.value));
         }}
       >
-        {[4, 5, 6].map((size) => (
-          <option defaultChecked={boardSize === size} value={size}>
+        {[4, 5, 6].map((size, idx) => (
+          <option key={idx} defaultChecked={boardSize === size} value={size}>
             {size}
           </option>
         ))}
       </select>
       <header className='header'>
         <h1 className='title'>2048</h1>
-        <div className='controls' style={{}}>
+        <div className='controls'>
           <div className='score'>
             <h4 className='score-title'>Score</h4>
             {score}
@@ -57,12 +59,12 @@ export const Header: FC<HeaderProps> = ({
           </div>
         </div>
         <div className='controls'>
-          <div className='game-button' onClick={() => onStartNewGame(boardSize)}>
+          <button className='game-button' onClick={() => onStartNewGame(boardSize)}>
             New game
-          </div>
-          <div className='game-button' onClick={onRevertStateBack}>
+          </button>
+          <button disabled={prevStateIsNull} className='game-button' onClick={onRevertStateBack}>
             One move back
-          </div>
+          </button>
         </div>
       </header>
     </div>

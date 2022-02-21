@@ -57,7 +57,8 @@ export const hasPossibleMoves = (size: number, tiles: TileMeta[]): boolean => {
     for (let col = 0; col < size; col++) {
       if (
         matrix[row][col].value === matrix[row][col + 1]?.value ||
-        matrix[row][col].value === matrix[row + 1][col].value
+        matrix[row][col].value === matrix[row + 1][col].value ||
+        matrix[row + 1][col + 1]?.value === matrix[row + 1][col].value
       ) {
         return true;
       }
@@ -83,7 +84,7 @@ export const generateRandomTile = (size: number, tiles: TileMeta[]) => {
 
   return {
     id: idGenerator.next().value || 0,
-    value: Math.random() > 0.9 ? 4 : 2,
+    value: Math.random() > 0.95 ? 4 : 2,
     position,
     isMerged: false,
   };

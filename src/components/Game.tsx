@@ -13,6 +13,7 @@ import {
 import { Grid } from './Grid';
 import { Header } from './Header';
 import { VideoControl } from './VideoControl';
+import { ANIMATION_DURATION } from '../configs/consts';
 import './Game.scss';
 
 const DEFAULT_SIZE = 4;
@@ -38,7 +39,7 @@ export const Game: FC = (): JSX.Element => {
   const isMovingRef = useRef(false);
 
   const updateState = (direction: Direction) => {
-    if (isMovingRef.current) return;
+    if (isMovingRef.current || isGameOver || (isGameWon && shouldShowWinOverlay)) return;
 
     isMovingRef.current = true;
 
@@ -54,9 +55,11 @@ export const Game: FC = (): JSX.Element => {
 
     setTimeout(() => {
       const currentState = mergeState(movedState, mergePairs);
-      const hasMoves = hasPossibleMoves(size, currentState);
       const newScore = score + getScoreFromMergePairs(mergePairs);
+
       currentState.push(generateRandomTile(size, currentState));
+
+      const hasMoves = hasPossibleMoves(size, currentState);
 
       if (currentState.some((tile) => tile.value === 2048)) {
         setIsGameWon(true);
@@ -72,7 +75,7 @@ export const Game: FC = (): JSX.Element => {
       setIsGameOver(!hasMoves);
 
       isMovingRef.current = false;
-    }, 300); // Should be the same as in CSS
+    }, ANIMATION_DURATION); // Should be the same as in CSS
   };
 
   useHandleButtons(updateState);
@@ -84,6 +87,7 @@ export const Game: FC = (): JSX.Element => {
     if (prevState !== null) {
       setTiles(prevState.tiles);
       setScore(prevState.score);
+      setPrevState(null);
     }
   };
 
@@ -99,6 +103,21 @@ export const Game: FC = (): JSX.Element => {
     startNewGameHandler(size);
   }, [size]);
 
+  const overlay = isGameWon
+    ? shouldShowWinOverlay && (
+        <div className='overlay win'>
+          you won
+          <button
+            className='btn'
+            onClick={() => setShouldShowWinOverlay(false)}
+            onTouchStart={() => setShouldShowWinOverlay(false)}
+          >
+            Continue
+          </button>
+        </div>
+      )
+    : isGameOver && <div className='overlay'>game over</div>;
+
   return (
     <>
       <div className='wrapper'>
@@ -108,21 +127,14 @@ export const Game: FC = (): JSX.Element => {
           score={score}
           bestScore={bestScore}
           boardSize={size}
+          prevStateIsNull={prevState === null}
           onEnableWebCamGestures={setIsVideoEnabled}
           onResizeBoard={setSize}
         />
         <div className='board' onTouchEnd={onTouchEnd} onTouchStart={onTouchStart}>
-          {isGameWon && shouldShowWinOverlay && (
-            <div className='overlay win'>
-              you won
-              <button className='btn' onClick={() => setShouldShowWinOverlay(false)}>
-                Continue
-              </button>
-            </div>
-          )}
-          {isGameOver && <div className='overlay'>game over</div>}
-
-          <Grid size={size} tiles={tiles} />
+          <Grid size={size} tiles={tiles}>
+            {overlay}
+          </Grid>
         </div>
       </div>
       <VideoControl isVideoEnabled={isVideoEnabled} WIDTH={320} HEIGHT={240} onDirectionChange={updateState} />
