@@ -62,11 +62,11 @@ $gap: 1vmin;
 }
 
 .merged {
-  animation: merge-tile 300ms;
+  animation: merge-tile var(--merge-duration);
 }
 
 .new {
-  animation: create-tile 300ms;
+  animation: create-tile var(--merge-duration);
 }
 
 @keyframes create-tile {

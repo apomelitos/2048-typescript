@@ -42,6 +42,7 @@ $bg-color: #bbada0;
   flex: 2 auto 100%;
   width: 70px;
   background-color: $bg-color;
+  color: $text-color;
   margin: 5px;
   margin-bottom: 2vmin;
   padding: 20px 10px;
@@ -50,6 +51,11 @@ $bg-color: #bbada0;
   font-size: 4vmin;
   text-align: center;
   cursor: pointer;
+}
+
+.game-button:disabled {
+  color: lightgray;
+  cursor: auto;
 }
 
 input[type='checkbox'] {
